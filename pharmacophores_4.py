@@ -10,8 +10,8 @@ import numpy as np
 from collections.abc import Iterable
 from abc import abstractmethod
 import signal
-from Hyperpharmacophore.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
-from Pharmacophore_tools import get_pharmacophore, save_pharmacophore
+from utils.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
+from utils.Pharmacophore_tools import get_pharmacophore, save_pharmacophore
 
 
 signal.signal(signal.SIGALRM, runTimeHandler)
