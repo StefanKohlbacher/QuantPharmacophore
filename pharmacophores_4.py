@@ -544,7 +544,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                 elif self.weightType == 'distance':
                     weight = getDistanceWeight(distance, maxDistance=self.maxDistance, **kwargs)
 
-                elif self.weightTyoe == 'nrOfFeatures':
+                elif self.weightType == 'nrOfFeatures':
                     weight = getFeatureFrequencyWeight(f, len(self.alignedSamples), LOOKUPKEYS, **kwargs)
 
                 else:
@@ -857,7 +857,10 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
     def predict(self, samples, aggregateEnvironment=False, returnScores=False, **kwargs):
         if self.trainingDim == 0:
-            return [0] * len(samples), [0] * len(samples)
+            if returnScores:
+                return [0] * len(samples), [0] * len(samples)
+            else:
+                return [0] * len(samples)
 
         if not isinstance(samples, Iterable):
             samples = [samples]

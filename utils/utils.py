@@ -43,7 +43,7 @@ def getDistanceWeight(distance, maxDistance=1e3, **kwargs):
 
 
 def getFeatureFrequencyWeight(feature, nrSamples, lookupkeys, **kwargs):
-    return feature.getProperty(lookupkeys['nrOfFeatures']/nrSamples)
+    return feature.getProperty(lookupkeys['nrOfFeatures'])/nrSamples
 
 
 def calculateDistance(coords1, coords2):
