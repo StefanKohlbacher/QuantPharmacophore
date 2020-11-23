@@ -330,6 +330,27 @@ def trainValidateTestModel(model, args):
         trainTestValidationSplit = json.load(f)
 
 
+def selectMostRigidMolecule(molecules):
+    """
+    Determine most rigid / least flexible molecule based on number of single non-hydrogen bonds in a molecule.
+    :param molecules:
+    :return:
+    """
+    numberOfFlexibleBondsPerMolecule = []
+    for mol in molecules:
+        singleNonHydrogenBonds = 0
+        for bond in mol.bonds:
+            if Chem.getOrder(bond) != 1:
+                continue
+
+            beginAtom, endAtom = bond.getBegin(), bond.getEnd()
+            if Chem.getType(beginAtom) != 1 and Chem.getType(endAtom) != 1:
+                singleNonHydrogenBonds += 1
+
+        numberOfFlexibleBondsPerMolecule.append(singleNonHydrogenBonds)
+
+    mostRigidMolecule = np.argmin(numberOfFlexibleBondsPerMolecule)
+    return molecules[mostRigidMolecule], [molecules[i] for i in range(len(molecules)) if i != mostRigidMolecule]
 
 
 class ParamsHoldingClass:
