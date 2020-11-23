@@ -858,9 +858,9 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
     def predict(self, samples, aggregateEnvironment=False, returnScores=False, **kwargs):
         if self.trainingDim == 0:
             if returnScores:
-                return [0] * len(samples), [0] * len(samples)
+                return np.array([0] * len(samples)), [0] * len(samples)
             else:
-                return [0] * len(samples)
+                return np.array([0] * len(samples))
 
         if not isinstance(samples, Iterable):
             samples = [samples]
