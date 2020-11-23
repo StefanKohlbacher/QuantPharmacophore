@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 from pharmacophores_4 import DistanceHyperpharmacophore, SequentialHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot
+from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
 from ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
 from Molecule_tools import SDFReader
 from shutil import copy
@@ -53,21 +53,41 @@ def main(args):
     modelPerformance = {}
     predictions = []
     figures = []
-    for j in range(len(molecules)-1):
-        print('Training model {} out of {}...'.format(j+1, len(molecules)-1))
-        try:
-            model = hpModel(molecules[j: j+2], **{k: v for k, v in params.items() if k != 'logPath'})
-        except AlignmentError:  # could not align the two templates -> go on to next template
-            continue
-        model.fit([molecules[k] for k in range(len(molecules)) if k not in [j, j+1]], mergeOnce=True)
-        models.append(model)
+    if args.alignToMostRigidMolecule:
+        template, remainingMolecules = selectMostRigidMolecule(molecules)
+        for j in range(len(remainingMolecules)):
+            print('Training model {} out of {}...'.format(j + 1, len(remainingMolecules)))
+            try:
+                model = hpModel([template, remainingMolecules[j]], **{k: v for k, v in params.items() if k != 'logPath'})
+            except AlignmentError:
+                continue
 
-        if args.omitEvaluation and not args.savePredictions:  # just train and don't evaluate on training set
-            continue
+            model.fit([remainingMolecules[k] for k in range(len(remainingMolecules)) if k != j], mergeOnce=True)
+            models.append(model)
 
-        y_pred = model.predict(molecules)
-        predictions.append(y_pred)
-        modelPerformance[j] = analyse_regression(np.array(activities), y_pred)
+            if args.omitEvaluation and not args.savePredictions:  # just train and don't evaluate on training set
+                continue
+
+            y_pred = model.predict(molecules)
+            predictions.append(y_pred)
+            modelPerformance[j] = analyse_regression(np.array(activities), y_pred)
+
+    else:
+        for j in range(len(molecules)-1):
+            print('Training model {} out of {}...'.format(j+1, len(molecules)-1))
+            try:
+                model = hpModel(molecules[j: j+2], **{k: v for k, v in params.items() if k != 'logPath'})
+            except AlignmentError:  # could not align the two templates -> go on to next template
+                continue
+            model.fit([molecules[k] for k in range(len(molecules)) if k not in [j, j+1]], mergeOnce=True)
+            models.append(model)
+
+            if args.omitEvaluation and not args.savePredictions:  # just train and don't evaluate on training set
+                continue
+
+            y_pred = model.predict(molecules)
+            predictions.append(y_pred)
+            modelPerformance[j] = analyse_regression(np.array(activities), y_pred)
 
     # evaluate performance
     if not args.omitEvaluation:
@@ -135,6 +155,8 @@ if __name__ == '__main__':
                         help='number of top n models to save. 0 (default) indicates all models are saved in descending order')
     parser.add_argument('-omitPredictions', action='store_true', default=False,
                         help='indicates whether to save predictions of the model on the training set')
+    parser.add_argument('-alignToMostRigidMolecule', required=False, action='store_true', default=False,
+                        help='Indicates whether to align all molecules to the most rigid molecule the training set')
 
     args = parser.parse_args()
     main(args)

@@ -12,10 +12,11 @@ import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 from pharmacophores_4 import DistanceHyperpharmacophore, SequentialHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot
+from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
 from ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
 from Molecule_tools import SDFReader
 from shutil import copy
+import matplotlib.pyplot as plt
 
 
 def main(args):
@@ -71,17 +72,33 @@ def main(args):
         models = []
         modelPerformance = {}
         preds = []
-        for j in range(len(trainingSet) - 1):
-            try:
-                model = hpModel(trainingSet[j: j + 2], **{k: v for k, v in params.items() if k != 'logPath'})
-            except AlignmentError:  # could not align the two templates -> go on to next template
-                continue
-            model.fit([trainingSet[k] for k in range(len(trainingSet)) if k not in [j, j + 1]], mergeOnce=True)
-            models.append(model)
+        if args.alignToMostRigidMolecule:
+            template, remainingMolecules = selectMostRigidMolecule(trainingSet)
+            for j in range(len(remainingMolecules)):
+                try:
+                    model = hpModel([template, remainingMolecules[j]], **{k: v for k, v in args if k != 'logPath'})
+                except AlignmentError:
+                    continue
 
-            y_pred = model.predict(testSet)
-            preds.append(y_pred)
-            modelPerformance[j] = analyse_regression(np.array(testActivities), y_pred)
+                model.fit([remainingMolecules[k] for k in range(len(remainingMolecules)) if k != j], mergeOnce=True)
+                models.append(model)
+
+                y_pred = model.predict(testSet)
+                preds.append(y_pred)
+                modelPerformance[j] = analyse_regression(np.array(testActivities), y_pred)
+
+        else:
+            for j in range(len(trainingSet) - 1):
+                try:
+                    model = hpModel(trainingSet[j: j + 2], **{k: v for k, v in params.items() if k != 'logPath'})
+                except AlignmentError:  # could not align the two templates -> go on to next template
+                    continue
+                model.fit([trainingSet[k] for k in range(len(trainingSet)) if k not in [j, j + 1]], mergeOnce=True)
+                models.append(model)
+
+                y_pred = model.predict(testSet)
+                preds.append(y_pred)
+                modelPerformance[j] = analyse_regression(np.array(testActivities), y_pred)
 
         # evaluate best training model on test set
         print('Evaluating fold...')
@@ -169,6 +186,8 @@ if __name__ == '__main__':
                         help='whether to include or omit the baselines (standard properties, number of pharmacophore features)')
     parser.add_argument('-cvFolds', type=str, default=None,
                         help='path to file with cv folds')
+    parser.add_argument('-alignToMostRigidMolecule', required=False, action='store_true', default=False,
+                        help='Indicates whether to align all molecules to the most rigid molecule the training set')
     args = parser.parse_args()
 
     main(args)
