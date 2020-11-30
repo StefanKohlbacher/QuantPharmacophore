@@ -1,6 +1,47 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.decomposition import PCA
+
+
+class PCAPredictor(PCA):
+
+    def __init__(self,
+                 predictionModel,
+                 explainedVariance=0.8,
+                 **kwargs
+                 ):
+        self.predictionModel = predictionModel
+        self.kwargs = kwargs
+        self.n_components_adjusted = None
+        self._explainedVariance = explainedVariance
+        super(PCAPredictor, self).__init__(**kwargs)
+
+    def predict(self, X):
+        transformed = self.transform(X)
+
+        if self.n_components is None:
+            transformed = transformed[:, :self.n_components_adjusted]
+        return self.predictionModel.predict(transformed)
+
+    def fit(self, X, y, sample_weight=None):
+        self.fit_transform(X, y, sample_weight=sample_weight)
+        return self
+
+    def fit_transform(self, X, y, sample_weight=None):
+        # fit_transform as implemented by parent PCA
+        transformed = super(PCAPredictor, self).fit_transform(X, y=y)
+
+        if self.n_components is None:
+            cumulativeVarianceExplained = np.cumsum(self.explained_variance_ratio_)
+            self.n_components_adjusted = np.sum((cumulativeVarianceExplained < self._explainedVariance)) + 1
+
+            transformed = transformed[:, :self.n_components_adjusted]
+
+        # train on-top ML-model
+        self.predictionModel.fit(transformed, y, sample_weight=sample_weight)
+
+        return transformed
 
 
 def analyse_regression(y_true: np.ndarray, y_pred: np.ndarray, weights=None) -> dict:

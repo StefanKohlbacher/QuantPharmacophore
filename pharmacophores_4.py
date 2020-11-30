@@ -145,6 +145,32 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
             from sklearn.ensemble import RandomForestRegressor
 
             return RandomForestRegressor(**modelKwargs)
+        elif modelType == 'pls':
+            from sklearn.cross_decomposition import PLSRegression
+
+            return PLSRegression(**modelKwargs)
+
+        elif modelType == 'pca_lr':
+            from utils.ML_tools import PCAPredictor
+            from sklearn.linear_model import LinearRegression
+
+            m = LinearRegression(self.kwargs.get('fit_intercept', True))
+            return PCAPredictor(m, **modelKwargs)
+
+        elif modelType == 'pca_ridge':
+            from utils.ML_tools import PCAPredictor
+            from sklearn.linear_model import Ridge
+
+            m = Ridge(self.kwargs.get('fit_intercept', True))
+            return PCAPredictor(m, **modelKwargs)
+
+        elif modelType == 'pca_lasso':
+            from utils.ML_tools import PCAPredictor
+            from sklearn.linear_model import Lasso
+
+            m = Lasso(self.kwargs.get('fit_intercept', True))
+            return PCAPredictor(m, **modelKwargs)
+
         else:
             raise ValueError(
                 'Unrecognized modelType {}. Should be one of [linearRegression, ridge, lasso, decisionTree, randomForest]'.format(
