@@ -10,9 +10,9 @@ import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 from pharmacophores_4 import DistanceHyperpharmacophore, SequentialHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
-from ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
-from Molecule_tools import SDFReader
+from utils.utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
+from utils.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
+from utils.Molecule_tools import SDFReader
 from shutil import copy
 import matplotlib.pyplot as plt
 
@@ -137,9 +137,9 @@ if __name__ == '__main__':
                         help='input file -> sdf file with conformations')
     parser.add_argument('-o', required=True, type=str,
                         help='output folder -> folder to save model to')
-    parser.add_argument('-hpType', type=str, default='distance',
+    parser.add_argument('-hpType', type=str, default='distance', required=False,
                         help='type of hyperpharmacophore to train. can be one of [sequential, distance]. default: distance')
-    parser.add_argument('-metric', type=str, default='R2',
+    parser.add_argument('-metric', type=str, default='R2', required=False,
                         help='metric to evaluate performance of hyperpharmacophore. possible values: [R2, RMSE]. default: R2')
     parser.add_argument('-notFuzzy', action='store_true', default=False,
                         help='indicates whether pharmacophores are fuzzy or not')

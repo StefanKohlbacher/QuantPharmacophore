@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 from pharmacophores_4 import DistanceHyperpharmacophore, SequentialHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
-from ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
-from Molecule_tools import SDFReader
+from utils.utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
+from utils.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
+from utils.Molecule_tools import SDFReader
 from shutil import copy
 import matplotlib.pyplot as plt
 

@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from argparse import ArgumentParser
 from pharmacophores_4 import DistanceHyperpharmacophore, SequentialHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot
-from ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
-from Molecule_tools import SDFReader, mol_to_sdf
+from utils.utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot
+from utils.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
+from utils.Molecule_tools import SDFReader, mol_to_sdf
 import CDPL.Chem as Chem
 from shutil import copy
 
