@@ -803,7 +803,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         :param kwargs:
         :return:
         """
-        from Pharmacophore_tools import FEATURE_TYPES
+        from utils.Pharmacophore_tools import FEATURE_TYPES
         # cluster the features and store a list of clusters, whereas each feature is referenced in the list by its index
         clusters = {ft: [] for ft in FEATURE_TYPES.values()}
         alreadyInCluster = set()
