@@ -3,6 +3,18 @@ import CDPL.Base as Base
 import CDPL.Chem as Chem
 
 
+FEATURE_TYPES = {
+    1: Pharm.FeatureType.HYDROPHOBIC,
+    2: Pharm.FeatureType.AROMATIC,
+    3: Pharm.FeatureType.NEG_IONIZABLE,
+    4: Pharm.FeatureType.POS_IONIZABLE,
+    5: Pharm.FeatureType.H_BOND_DONOR,
+    6: Pharm.FeatureType.H_BOND_ACCEPTOR,
+    7: Pharm.FeatureType.X_VOLUME,
+}
+FEATURE_TYPES_INVERSE = {value: key for key, value in FEATURE_TYPES.items()}
+
+
 def save_pharmacophore(pharmacophore: Pharm.BasicPharmacophore, path: str):
     # print("Saving Pharmacophore")
     writer = Pharm.FilePMLFeatureContainerWriter(path)
