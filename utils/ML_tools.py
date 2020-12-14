@@ -24,13 +24,13 @@ class PCAPredictor(PCA):
             transformed = transformed[:, :self.n_components_adjusted]
         return self.predictionModel.predict(transformed)
 
-    def fit(self, X, y, sample_weight=None):
-        self.fit_transform(X, y, sample_weight=sample_weight)
+    def fit(self, X, y=None):
+        self.fit_transform(X, y)
         return self
 
-    def fit_transform(self, X, y, sample_weight=None):
+    def fit_transform(self, X, y=None):
         # fit_transform as implemented by parent PCA
-        transformed = super(PCAPredictor, self).fit_transform(X, y=y)
+        transformed = super(PCAPredictor, self).fit_transform(X)
 
         if self.n_components is None:
             cumulativeVarianceExplained = np.cumsum(self.explained_variance_ratio_)
@@ -39,7 +39,7 @@ class PCAPredictor(PCA):
             transformed = transformed[:, :self.n_components_adjusted]
 
         # train on-top ML-model
-        self.predictionModel.fit(transformed, y, sample_weight=sample_weight)
+        self.predictionModel.fit(transformed, y)
 
         return transformed
 

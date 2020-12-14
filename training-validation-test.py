@@ -13,7 +13,8 @@ import multiprocessing as mp
 
 
 def main(args, trainValidationTestSplit, searchParameters, modelParams):
-    print(args.name)
+    # print(args.name)
+    print(args['name'])
 
     outputFolder = args.logPath[:-1] if args.logPath[-1] == '/' else args.logPath
     # combine to be tested parameters
@@ -41,8 +42,11 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
         # print('Running parameters', i, params)
         # set current parameters
         for key, value in params.items():
-            setattr(args, key, value)
-        args.modelKwargs = modelParams[args.modelType]
+            args[key] = value
+            # setattr(args, key, value)
+        args['modelKwargs'] = modelParams[args['modelType']]
+        # args.modelKwargs = modelParams[args.modelType]
+        args = ParamsHoldingClass(args)
 
         # create output folder for current parameters
         args.o = '{o}/{i}/'.format(o=outputFolder, i=i)
@@ -134,9 +138,12 @@ if __name__ == '__main__':
         'threshold': [1, 1.5, 2]
     }
     modelParams = {
-        'ridge': {'fit_intercept': True},
-        'lasso': {'fit_intercept': True},
-        'randomForest': {'n_estimators': 20, 'max_depth': 3}
+        'ridge': {'fit_intercept': False},
+        'lasso': {'fit_intercept': False},
+        'randomForest': {'n_estimators': 10, 'max_depth': 3},
+        'pca_ridge': {},
+        'pca_lasso': {},
+        'pls': {}
     }
 
     # get targets
@@ -192,13 +199,13 @@ if __name__ == '__main__':
             if trainValTestSplit['test'] == 0 or trainValTestSplit['training'] == 0 or trainValTestSplit['validation'] == 0:
                 continue
 
-            args = ParamsHoldingClass(tempParams)
+            # args = ParamsHoldingClass(tempParams)
 
             if nrProcesses > 1:
-                jobs.append(pool.apply_async(main, args=(args, trainValTestSplit, searchParams, modelParams)))
+                jobs.append(pool.apply_async(main, args=(tempParams, trainValTestSplit, searchParams, modelParams)))
 
             else:
-                jobs.append((main, (args, trainValTestSplit, searchParams, modelParams)))
+                jobs.append((main, (tempParams, trainValTestSplit, searchParams, modelParams)))
 
     # make calculations
     if nrProcesses > 1:

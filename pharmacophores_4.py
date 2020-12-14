@@ -128,48 +128,48 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         if modelType == 'linearRegression':
             from sklearn.linear_model import LinearRegression
 
-            return LinearRegression(**modelKwargs)
+            return LinearRegression(**getattr(self, 'modelKwargs', {}))
         elif modelType == 'ridge':
             from sklearn.linear_model import Ridge
 
-            return Ridge(**modelKwargs)
+            return Ridge(**getattr(self, 'modelKwargs', {}))
         elif modelType == 'lasso':
             from sklearn.linear_model import Lasso
 
-            return Lasso(**modelKwargs)
+            return Lasso(**getattr(self, 'modelKwargs', {}))
         elif modelType == 'decisionTree':
             from sklearn.tree import DecisionTreeRegressor
 
-            return DecisionTreeRegressor(**modelKwargs)
+            return DecisionTreeRegressor(**getattr(self, 'modelKwargs', {}))
         elif modelType == 'randomForest':
             from sklearn.ensemble import RandomForestRegressor
 
-            return RandomForestRegressor(**modelKwargs)
+            return RandomForestRegressor(**getattr(self, 'modelKwargs', {}))
         elif modelType == 'pls':
             from sklearn.cross_decomposition import PLSRegression
 
-            return PLSRegression(**modelKwargs)
+            return PLSRegression(**getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_lr':
             from utils.ML_tools import PCAPredictor
             from sklearn.linear_model import LinearRegression
 
-            m = LinearRegression(self.kwargs.get('fit_intercept', True))
-            return PCAPredictor(m, **modelKwargs)
+            m = LinearRegression(fit_intercept=False)
+            return PCAPredictor(m, **getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_ridge':
             from utils.ML_tools import PCAPredictor
             from sklearn.linear_model import Ridge
 
-            m = Ridge(self.kwargs.get('fit_intercept', True))
-            return PCAPredictor(m, **modelKwargs)
+            m = Ridge(fit_intercept=False)
+            return PCAPredictor(m, **getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_lasso':
             from utils.ML_tools import PCAPredictor
             from sklearn.linear_model import Lasso
 
-            m = Lasso(self.kwargs.get('fit_intercept', True))
-            return PCAPredictor(m, **modelKwargs)
+            m = Lasso(fit_intercept=False)
+            return PCAPredictor(m, **getattr(self, 'modelKwargs', {}))
 
         else:
             raise ValueError(

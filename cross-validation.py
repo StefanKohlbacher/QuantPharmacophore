@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 def main(args):
     # set some parameters
     args.modelType = 'randomForest'
-    args.modelKwargs = {'n_estimators': 20, 'max_depth': 3}
+    args.modelKwargs = {'n_estimators': 10, 'max_depth': 3}
 
     # load file with indices for cross-validation
     with open(args.cvFolds) as f:
@@ -138,8 +138,12 @@ def main(args):
                           'FeaturesBaseline_std', 'PropsBaseline_mean', 'PropsBaseline_std']
 
     for key, value in args.__dict__.items():
-        if key == 'modelKwargs':  # treat separately, since it is a dict
+        if isinstance(value, dict):
             continue
+        if not isinstance(value, (int, str, float)) or not isinstance(key, (int, str, float)):
+            continue
+        # if key == 'modelKwargs':  # treat separately, since it is a dict
+        #     continue
         merged[key] = value
 
     print('Results: ')
