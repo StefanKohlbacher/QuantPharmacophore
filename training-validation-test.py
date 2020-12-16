@@ -89,8 +89,10 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
         models[i] = bestModel
 
     # test selected models from each parameter setting on test set
+    print('Testing models')
     for i, model in models.items():
         o = '{o}/{i}/'.format(o=outputFolder, i=i)
+        print('Saving test results to: ', o)
 
         y_pred = model.predict(testSet)
         modelPerformance = analyse_regression(testActivities, y_pred)
