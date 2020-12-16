@@ -107,13 +107,20 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
         print('Analysed', i)
 
     # make baseline models
-    mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # use ml-model with same parameters
-    perf, pred = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
-    pd.DataFrame.from_dict(perf, orient='index').to_csv('{logPath}/performance_features_baseline.csv'.format(logPath=outputFolder))
-    pd.DataFrame(pred, columns=['predictions']).to_csv('{logPath}/predictions_features_baseline.csv'.format(logPath=outputFolder))
-    perf, pred = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
-    pd.DataFrame.from_dict(perf, orient='index').to_csv('{logPath}/performance_properties_baseline.csv'.format(logPath=outputFolder))
-    pd.DataFrame(pred, columns=['predictions']).to_csv('{logPath}/predictions_properties_baseline.csv'.format(logPath=outputFolder))
+    # mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # use ml-model with same parameters
+    # try:
+    #     perf, pred = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
+    #     pd.DataFrame.from_dict(perf, orient='index').to_csv('{logPath}/performance_features_baseline.csv'.format(logPath=outputFolder))
+    #     pd.DataFrame(pred, columns=['predictions']).to_csv('{logPath}/predictions_features_baseline.csv'.format(logPath=outputFolder))
+    # except:
+    #     print('Features baseline failed')
+    # try:
+    #     perf, pred = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
+    #     pd.DataFrame.from_dict(perf, orient='index').to_csv('{logPath}/performance_properties_baseline.csv'.format(logPath=outputFolder))
+    #     pd.DataFrame(pred, columns=['predictions']).to_csv('{logPath}/predictions_properties_baseline.csv'.format(logPath=outputFolder))
+    # except:
+    #     print('Properties baseline failed')
+
     print('Finished', args.name)
 
 
