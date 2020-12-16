@@ -39,6 +39,7 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
     # test all parameters on the datasets
     generalArgs = args
     models = {}
+    print('Training parameters')
     for i, params in enumerate(combinedParameters):
         # print('Running parameters', i, params)
         # set current parameters
