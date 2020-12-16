@@ -104,7 +104,7 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
         pd.DataFrame.from_dict(modelPerformance, orient='index').to_csv('{logPath}performance.csv'.format(logPath=o))
         pd.DataFrame(y_pred, columns=['predictions']).to_csv('{logPath}predictions.csv'.format(logPath=o))
         model.save('{logPath}model/'.format(logPath=o))
-        print('Analysed', i)
+        print('Tested and saved', i)
 
     # make baseline models
     # mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # use ml-model with same parameters
