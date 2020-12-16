@@ -145,7 +145,8 @@ if __name__ == '__main__':
         'randomForest': {'n_estimators': 10, 'max_depth': 3},
         'pca_ridge': {},
         # 'pca_lasso': {},
-        'pls': {}
+        'pls': {},
+        'pca_lr': {},
     }
 
     # get targets
