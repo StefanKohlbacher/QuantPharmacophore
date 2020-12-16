@@ -540,6 +540,10 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         else:
             self.trainingDim = featureData.shape[1]
 
+        if self.modelType == 'pls' and (featureData.shape[0] > self.mlModel.n_components or featureData.shape[1] > self.mlModel.n_components):
+            self.trainingDim = 0  # not really 0, but predict checks for 0 if something went wrong
+            return
+
         # fit ml model
         if isinstance(self.mlModel, Iterable) and self.modelType != 'randomForest':
             for m in self.mlModel:

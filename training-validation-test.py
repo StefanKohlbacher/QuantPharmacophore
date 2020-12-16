@@ -16,16 +16,16 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
     # print(args.name)
     print(args['name'])
 
-    outputFolder = args.logPath[:-1] if args.logPath[-1] == '/' else args.logPath
+    outputFolder = args['logPath'][:-1] if args['logPath'][-1] == '/' else args['logPath']
     # combine to be tested parameters
     keys = sorted(searchParameters.keys())
     combinations = product(*(searchParameters[k] for k in keys))
     combinedParameters = [{keys[k]: values[k] for k in range(len(keys))} for values in combinations]  # all parameters
 
     # load molecules and split into different datasets
-    r = SDFReader('{basePath}{d}{f}'.format(basePath=args.basePath, d=args.dataset, f=args.inputFile), multiconf=True)
+    r = SDFReader('{basePath}{d}{f}'.format(basePath=args['basePath'], d=args['dataset'], f=args['inputFile']), multiconf=True)
     molecules = [mol for mol in r]
-    activities = [extractActivityFromMolecule(mol, args.activityName) for mol in molecules]
+    activities = [extractActivityFromMolecule(mol, args['activityName']) for mol in molecules]
     assignActivitiesToMolecules(molecules, activities)
 
     # split molecules in training, validation, test set
@@ -37,10 +37,12 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
     template, remainingMolecules = selectMostRigidMolecule(trainingSet)
 
     # test all parameters on the datasets
+    generalArgs = args
     models = {}
     for i, params in enumerate(combinedParameters):
         # print('Running parameters', i, params)
         # set current parameters
+        args = {k: v for k, v in generalArgs.items()}
         for key, value in params.items():
             args[key] = value
             # setattr(args, key, value)
@@ -134,15 +136,15 @@ if __name__ == '__main__':
     }
     searchParams = {   # only parameters to be combined!
         'weightType': ['distance', 'nrOfFeatures'],
-        'modelType': ['randomForest', 'lasso', 'ridge'],
+        'modelType': ['randomForest', 'pca_ridge', 'ridge', 'pls', 'pca_lr'],
         'threshold': [1, 1.5, 2]
     }
     modelParams = {
         'ridge': {'fit_intercept': False},
-        'lasso': {'fit_intercept': False},
+        # 'lasso': {'fit_intercept': False},
         'randomForest': {'n_estimators': 10, 'max_depth': 3},
         'pca_ridge': {},
-        'pca_lasso': {},
+        # 'pca_lasso': {},
         'pls': {}
     }
 
