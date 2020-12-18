@@ -862,16 +862,17 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         storedActivities = []
         for i in range(self.cleanedHP.numFeatures):
             activities = self.cleanedHP.getFeature(i).getProperty(LOOKUPKEYS['activities'])
-            if len(activities) == 1:
-                toRemove.append(i)  # remove features with only one feature activity
-                continue
-            else:
-                storedActivities.append(activities)  # store activities, so we do not have to iterate the features again
 
             if min(activities) < refMin:
                 refMin = min(activities)
             if max(activities) > refMax:
                 refMax = max(activities)
+
+            if len(activities) == 1:
+                toRemove.append(i)  # remove features with only one feature activity
+                continue
+            else:
+                storedActivities.append(activities)  # store activities, so we do not have to iterate the features again
 
         for i in reversed(toRemove):
             self.cleanedHP.removeFeature(i)
