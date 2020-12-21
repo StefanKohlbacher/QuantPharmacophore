@@ -579,7 +579,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
                 elif self.weight is None or self.weightType == 'binary':
                     weight = 1
-                    
+
                 else:
                     raise TypeError('weightType not recognized')
 
