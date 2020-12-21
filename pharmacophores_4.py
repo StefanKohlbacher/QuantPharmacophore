@@ -577,6 +577,9 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                 elif self.weightType == 'nrOfFeatures':
                     weight = getFeatureFrequencyWeight(f, len(self.alignedSamples), LOOKUPKEYS, **kwargs)
 
+                elif self.weight is None or self.weightType == 'binary':
+                    weight = 1
+                    
                 else:
                     raise TypeError('weightType not recognized')
 
