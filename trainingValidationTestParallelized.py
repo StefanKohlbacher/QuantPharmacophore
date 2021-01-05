@@ -118,6 +118,10 @@ if __name__ == '__main__':
                 tempParams[key] = value
 
             # load data split
+            if not os.path.isfile('{basePath}{folder}{cvFolds}.json'.format(basePath=basePath,
+                                                                            folder=tempParams['dataset'],
+                                                                            cvFolds='trainValidationTestSplit')):
+                continue
             with open('{basePath}{folder}{cvFolds}.json'.format(basePath=basePath,
                                                                 folder=tempParams['dataset'],
                                                                 cvFolds='trainValidationTestSplit'), 'r') as f:
