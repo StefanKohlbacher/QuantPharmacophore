@@ -15,7 +15,7 @@ def run_parallel(nr_processes, jobs):
     finishedJobs = mp.Queue()  # subprocesses fill this queue with process id once finished
 
     def run(args, process_name):
-        main(args)
+        main(*args)
         finishedJobs.put(process_name)
 
     # spawn processes
@@ -49,7 +49,7 @@ def run_parallel(nr_processes, jobs):
 
 if __name__ == '__main__':
     # define parameterss
-    nrProcesses = 1  # !!! be aware of potential memory leak!
+    nrProcesses = 8  # !!! be aware of potential memory leak!
     basePath = '../Data/Evaluation_datasets/'
     params = {
         'basePath': basePath,
