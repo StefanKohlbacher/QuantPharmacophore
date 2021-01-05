@@ -1,8 +1,9 @@
+import sys
+sys.path.append('../Scripts/GithubRepo/')
 from trainingValidationTest import main
 import multiprocessing as mp
 import os
 import json
-import sys
 
 
 def run_parallel(nr_processes, jobs):
