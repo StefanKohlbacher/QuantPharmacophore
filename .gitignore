@@ -130,4 +130,9 @@ dmypy.json
 
 # random folders
 testOutput_*/
+compare_against_phase_results*/
+gaba_a_case_study_*/
+
+# log files
+screenlog.*
 

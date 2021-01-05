@@ -4,12 +4,13 @@ import json
 import numpy as np
 import pandas as pd
 from pharmacophores_4 import DistanceHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils.utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule
+from utils.utils import numFeaturesBaseline, standardPropertiesBaseline, extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 from utils.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
 from utils.Molecule_tools import SDFReader
 from shutil import copy
 import matplotlib.pyplot as plt
 import multiprocessing as mp
+from itertools import product
 
 
 def main(args, trainValidationTestSplit, searchParameters, modelParams):
@@ -102,7 +103,9 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
         fig.savefig('{logPath}predictions.png'.format(logPath=o))
         plt.close()
         pd.DataFrame.from_dict(modelPerformance, orient='index').to_csv('{logPath}performance.csv'.format(logPath=o))
-        pd.DataFrame(y_pred, columns=['predictions']).to_csv('{logPath}predictions.csv'.format(logPath=o))
+        preds = pd.DataFrame(y_pred, columns=['predictions'])
+        preds['true_values'] = testActivities
+        preds.to_csv('{logPath}predictions.csv'.format(logPath=o))
         model.save('{logPath}model/'.format(logPath=o))
         print('Tested and saved', i)
 
@@ -130,11 +133,9 @@ def main(args, trainValidationTestSplit, searchParameters, modelParams):
 
 
 if __name__ == '__main__':
-    from utils.utils import ParamsHoldingClass
-    from itertools import product
 
     # define parameterss
-    nrProcesses = 8
+    nrProcesses = 1  # !!! Attention !!! use more than one process with caution --> there is some bug with memory occupation, which is not released after usage!!!
     basePath = '../../Data/Evaluation_datasets/'
     params = {
         'basePath': basePath,
