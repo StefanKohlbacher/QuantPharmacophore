@@ -16,26 +16,32 @@ def run_parallel(nr_processes, jobs):
 
     def run(args, process_name):
         main(*args)
+        print('Finished main run for process', process_name)
         finishedJobs.put(process_name)
+        print('push process finished', process_name)
 
     # spawn processes
     for i in range(nr_processes):
         p = mp.Process(target=run, args=(scheduledJobs.get(), i), name=str(i))
         processes[i] = p
         p.start()  # immediately starts running the process
+        print('Started process', i)
 
     # kill and restart processes once done to clean up memory and start fresh
     running_processes = len(processes)
     while running_processes > 0:
-        i = finishedJobs.get()  # blocks until we get a new entry
+        i = finishedJobs.get(True)  # blocks until we get a new entry
+        print('received process', i)
         p = processes.pop(i)
         p.terminate()
+        print('terminated process', i)
 
         # check whether there is something left to do -> start over
         if not scheduledJobs.empty():
             p = mp.Process(target=run, args=(scheduledJobs.get(), i), name=str(i))
             processes[i] = p
             p.start()
+            print('started process again: ', i)
 
         running_processes = len(processes)
 
