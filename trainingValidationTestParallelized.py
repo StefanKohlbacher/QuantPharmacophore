@@ -29,10 +29,13 @@ def run_parallel(nr_processes, jobs):
 
     # kill and restart processes once done to clean up memory and start fresh
     running_processes = len(processes)
+    print('processes:', len(processes))
     while running_processes > 0:
+        print('processes:', len(processes))
         i = finishedJobs.get(True)  # blocks until we get a new entry
         print('received process', i)
         p = processes.pop(i)
+        print('processes:', len(processes))
         p.terminate()
         print('terminated process', i)
 
@@ -42,8 +45,10 @@ def run_parallel(nr_processes, jobs):
             processes[i] = p
             p.start()
             print('started process again: ', i)
+            print('processes:', len(processes))
 
         running_processes = len(processes)
+        print('processes:', len(processes))
 
     # all jobs ran successfully -> clean up
     scheduledJobs.close()
