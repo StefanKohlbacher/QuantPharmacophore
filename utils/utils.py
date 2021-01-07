@@ -178,10 +178,16 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.scatter(y_true.flatten(), y_pred.flatten())
     # define axis_limits
-    high_activity_lim = max(max(y_true), max(y_pred)) + 0.2
-    low_activity_lim = min(min(y_true), min(y_pred)) - 0.2
+    high_activity_lim = np.ceil(max(max(y_true), max(y_pred)))
+    low_activity_lim = np.floor(min(min(y_true), min(y_pred)))
     limits = (high_activity_lim, low_activity_lim)
     # limits = (low_activity_lim, high_activity_lim)
+
+    # add regression line
+    m, b = np.polyfit(y_true.flatten(), y_pred.flatten(), 1)
+    x = np.arange(low_activity_lim, high_activity_lim+1)
+    ax.plot(x, m*x+b)
+
     ax.set_xlim(limits)
     ax.set_ylim(limits)
     ax.set_xlabel(xLabel)
