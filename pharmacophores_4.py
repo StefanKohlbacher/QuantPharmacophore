@@ -990,6 +990,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         # load template
         if os.path.isfile('{}template.pml'.format(path)):
             self.template = load_pml_pharmacophore('{}template.pml'.format(path))
+            self.assign(self.template)
         else:
             print('Could not find template at file: template.pml')
             
