@@ -20,7 +20,7 @@ import time
 
 
 # define some general parameters
-NR_PROCESSES = 8
+NR_PROCESSES = 4
 BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
@@ -199,6 +199,11 @@ def run_parallel(nr_processes, jobs):
         p.terminate()
 
 
+def run_not_parallel(jobs):
+    for job in jobs:
+        main(*jobs)
+
+
 if __name__ == '__main__':
 
     # determine output path
@@ -266,6 +271,10 @@ if __name__ == '__main__':
 
             jobs.append((allParams, ))
 
-    run_parallel(NR_PROCESSES, jobs)
+    if NR_PROCESSES > 1:
+        run_parallel(NR_PROCESSES, jobs)
+    else:
+        run_not_parallel(jobs)
+
     print('Finished model selection on PHASE-dataset')
     send_telegram_message('Finished model selection on PHASE-dataset')
