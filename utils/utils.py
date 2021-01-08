@@ -188,6 +188,7 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     x = np.arange(low_activity_lim, high_activity_lim+1)
     ax.plot(x, m*x+b)
 
+    # set limits on plot
     ax.set_xlim(limits)
     ax.set_ylim(limits)
     ax.set_xlabel(xLabel)
