@@ -36,6 +36,8 @@ def main(args):
     # define parameters
     args = ParamsHoldingClass(args)
 
+    print('Running', args.__dict__)
+
     # load data
     r = SDFReader('{b}Debnath_2002_compounds_conformations.sdf'.format(b=BASEPATH))
     molecules, activities = [], []
