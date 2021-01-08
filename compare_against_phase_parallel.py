@@ -134,10 +134,14 @@ def main(args):
     fig.savefig('{}/training_predictions_{}.png'.format(outputPath, key))
     plt.close()
 
+    print('Finished ', args.i)
+
     return modelPerformance
 
 
 def run_parallel(nr_processes, jobs):
+    from queue import Empty
+
     # set up some overhead
     processes = {}  # keep track of all the processes we started
     scheduledJobs = mp.Queue()
@@ -161,11 +165,14 @@ def run_parallel(nr_processes, jobs):
         time.sleep(1)
 
     # kill and restart processes once done to clean up memory and start fresh
-    running_processes = len(processes)
     print('processes:', len(processes))
-    while running_processes > 0:
+    nr_processes = len(processes)
+    while not nr_processes > 0:
         print('processes:', len(processes))
-        name = finishedJobs.get(True)  # blocks until we get a new entry
+        try:
+            name = finishedJobs.get(True, timeout=1)  # wait 1 sec, then raise empty error
+        except Empty:
+            continue
         print('received process', name)
         p = processes.pop(name)
         print('processes:', len(processes))
@@ -181,7 +188,7 @@ def run_parallel(nr_processes, jobs):
             print('started process : ', name)
             print('processes:', len(processes))
 
-        running_processes = len(processes)
+        nr_processes = len(processes)
         print('processes:', len(processes))
 
     # all jobs ran successfully -> clean up
