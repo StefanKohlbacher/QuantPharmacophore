@@ -167,7 +167,7 @@ def run_parallel(nr_processes, jobs):
     # kill and restart processes once done to clean up memory and start fresh
     print('processes:', len(processes))
     running_processes = len(processes)
-    while not running_processes > 0:
+    while running_processes > 0:
         print('processes:', len(processes))
         try:
             name = finishedJobs.get(True, timeout=1)  # wait 1 sec, then raise empty error
