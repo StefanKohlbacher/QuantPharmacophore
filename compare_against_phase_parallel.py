@@ -16,6 +16,7 @@ import CDPL.Math as Math
 from itertools import product
 import multiprocessing as mp
 from Notifications import send_telegram_message
+import time
 
 
 # define some general parameters
@@ -152,29 +153,32 @@ def run_parallel(nr_processes, jobs):
 
     # spawn processes
     for i in range(nr_processes):
-        p = mp.Process(target=run, args=(scheduledJobs.get(), i), name=str(i))
-        processes[i] = p
+        name = time.time()
+        p = mp.Process(target=run, args=(scheduledJobs.get(), name), name=str(name))
+        processes[name] = p
         p.start()  # immediately starts running the process
-        print('Started process', i)
+        print('Started process', name)
+        time.sleep(1)
 
     # kill and restart processes once done to clean up memory and start fresh
     running_processes = len(processes)
     print('processes:', len(processes))
     while running_processes > 0:
         print('processes:', len(processes))
-        i = finishedJobs.get(True)  # blocks until we get a new entry
-        print('received process', i)
-        p = processes.pop(i)
+        name = finishedJobs.get(True)  # blocks until we get a new entry
+        print('received process', name)
+        p = processes.pop(name)
         print('processes:', len(processes))
         p.terminate()
-        print('terminated process', i)
+        print('terminated process', name)
 
         # check whether there is something left to do -> start over
         if not scheduledJobs.empty():
-            p = mp.Process(target=run, args=(scheduledJobs.get(), i), name=str(i))
-            processes[i] = p
+            name = time.time()
+            p = mp.Process(target=run, args=(scheduledJobs.get(), name), name=str(name))
+            processes[name] = p
             p.start()
-            print('started process again: ', i)
+            print('started process : ', name)
             print('processes:', len(processes))
 
         running_processes = len(processes)
@@ -183,8 +187,8 @@ def run_parallel(nr_processes, jobs):
     # all jobs ran successfully -> clean up
     scheduledJobs.close()
     finishedJobs.close()
-    for i in processes.keys():  # should be empty already, but better check
-        p = processes.pop(i)
+    for key in processes.keys():  # should be empty already, but better check
+        p = processes.pop(key)
         p.terminate()
 
 
