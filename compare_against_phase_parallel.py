@@ -20,7 +20,7 @@ import time
 
 
 # define some general parameters
-NR_PROCESSES = 4
+NR_PROCESSES = 1
 BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
@@ -201,7 +201,7 @@ def run_parallel(nr_processes, jobs):
 
 def run_not_parallel(jobs):
     for job in jobs:
-        main(*jobs)
+        main(*job)
 
 
 if __name__ == '__main__':
