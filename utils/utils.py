@@ -238,7 +238,10 @@ def extractActivityFromMolecule(mol, activityProp):
             if p.data == 'nan':
                 return None
             else:
-                return float(p.data)
+                try:
+                    return float(p.data)
+                except:
+                    return None
 
 
 def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, returnPredictions=False):
@@ -337,7 +340,7 @@ def trainValidateTestModel(model, args):
         trainTestValidationSplit = json.load(f)
 
 
-def selectMostRigidMolecule(molecules):
+def selectMostRigidMolecule(molecules, returnIndices=False):
     """
     Determine most rigid / least flexible molecule based on number of single non-hydrogen bonds in a molecule.
     :param molecules:
@@ -357,6 +360,8 @@ def selectMostRigidMolecule(molecules):
         numberOfFlexibleBondsPerMolecule.append(singleNonHydrogenBonds)
 
     mostRigidMolecule = np.argmin(numberOfFlexibleBondsPerMolecule)
+    if returnIndices:
+        return mostRigidMolecule, [k for k in range(len(molecules)) if k != mostRigidMolecule]
     return molecules[mostRigidMolecule], [molecules[i] for i in range(len(molecules)) if i != mostRigidMolecule]
 
 

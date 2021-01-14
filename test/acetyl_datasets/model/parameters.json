@@ -1,0 +1,10 @@
+{
+  "fuzzy": true,
+  "weightType": "distance",
+  "logPath": null,
+  "name": "Hyperpharmacophore",
+  "maxDistance": 1000.0,
+  "nrSamples": 20,
+  "distanceType": "inverse",
+  "trainingDim": 21
+}

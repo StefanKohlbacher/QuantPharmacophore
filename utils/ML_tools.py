@@ -45,6 +45,11 @@ class PCAPredictor(PCA):
 
 
 def analyse_regression(y_true: np.ndarray, y_pred: np.ndarray, weights=None) -> dict:
+    if not isinstance(y_true, np.ndarray):
+        y_true = np.array(y_true)
+    if not isinstance(y_pred, np.ndarray):
+        y_pred = np.array(y_pred)
+
     assert not np.any(np.isnan(y_true)) and not np.any(np.isnan(y_pred)), 'y_true: %s\ny_pred: %s' % (str(y_true), str(y_pred))
     assert not np.any(np.isinf(y_true)) and not np.any(np.isinf(y_pred)), 'y_true: %s\ny_pred: %s' % (str(y_true), str(y_pred))
     y_true = y_true.flatten()

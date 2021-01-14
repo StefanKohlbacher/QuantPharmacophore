@@ -132,7 +132,14 @@ dmypy.json
 testOutput_*/
 compare_against_phase_results*/
 gaba_a_case_study_*/
+gridSearch_*/
 
-# log files
+# log files / custom file
 screenlog.*
-
+Dockerfile
+requirements.txt
+train_old.py
+predict_old.py
+cross-validation.py
+trainingValidationTest.py
+trainingValidationTestParallelized.py

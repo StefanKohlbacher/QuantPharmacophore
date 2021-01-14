@@ -1,0 +1,4 @@
+{
+  "weightType": ["distance", null],
+  "modelType": ["randomForest", "ridge"]
+}

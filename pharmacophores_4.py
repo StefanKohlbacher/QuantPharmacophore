@@ -21,6 +21,7 @@ LOOKUPKEYS = {
     'activity': Base.LookupKey.create('activity'),
     'activities': Base.LookupKey.create('activities'),
     'nrOfFeatures': Base.LookupKey.create('nrOfFeatures'),
+    'prediction': Base.LookupKey.create('prediction'),
 }
 
 
