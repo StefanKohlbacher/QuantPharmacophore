@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from utils.modules import checkDataRequirements, loadMolecules
+from utilities.modules import checkDataRequirements, loadMolecules
 
 
 if __name__ == '__main__':

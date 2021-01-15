@@ -143,3 +143,7 @@ predict_old.py
 cross-validation.py
 trainingValidationTest.py
 trainingValidationTestParallelized.py
+cdpkit_docker_image.tar
+qphar_docker_container.tar
+qphar_docker_image.tar
+cdpkit_installer.sh

@@ -4,7 +4,7 @@ import CDPL.Chem as Chem
 import CDPL.Math as Math
 import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
-from Pharmacophore_tools import get_pharmacophore
+from utilities.Pharmacophore_tools import get_pharmacophore
 
 
 def bind(instance, func, as_name=None):
@@ -249,7 +249,7 @@ def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, ret
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from ML_tools import analyse_regression
+    from utilities.ML_tools import analyse_regression
 
     numFeatures = []
     activities = []
@@ -285,8 +285,8 @@ def standardPropertiesBaseline(trainingSet, testSet, activityLookupKey, model=No
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from Molecule_tools import calculateStandardProperties
-    from ML_tools import analyse_regression
+    from utilities.Molecule_tools import calculateStandardProperties
+    from utilities.ML_tools import analyse_regression
 
     # extract training properties
     standardProperties = calculateStandardProperties(trainingSet)

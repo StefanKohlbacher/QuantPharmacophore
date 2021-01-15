@@ -10,8 +10,8 @@ import numpy as np
 from collections.abc import Iterable
 from abc import abstractmethod
 import signal
-from utils.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
-from utils.Pharmacophore_tools import get_pharmacophore, save_pharmacophore
+from utilities.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
+from utilities.Pharmacophore_tools import get_pharmacophore, save_pharmacophore
 
 
 signal.signal(signal.SIGALRM, runTimeHandler)
@@ -152,21 +152,21 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
             return PLSRegression(**getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_lr':
-            from utils.ML_tools import PCAPredictor
+            from utilities.ML_tools import PCAPredictor
             from sklearn.linear_model import LinearRegression
 
             m = LinearRegression(fit_intercept=False)
             return PCAPredictor(m, **getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_ridge':
-            from utils.ML_tools import PCAPredictor
+            from utilities.ML_tools import PCAPredictor
             from sklearn.linear_model import Ridge
 
             m = Ridge(fit_intercept=False)
             return PCAPredictor(m, **getattr(self, 'modelKwargs', {}))
 
         elif modelType == 'pca_lasso':
-            from utils.ML_tools import PCAPredictor
+            from utilities.ML_tools import PCAPredictor
             from sklearn.linear_model import Lasso
 
             m = Lasso(fit_intercept=False)
@@ -811,7 +811,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         :param kwargs:
         :return:
         """
-        from utils.Pharmacophore_tools import FEATURE_TYPES
+        from utilities.Pharmacophore_tools import FEATURE_TYPES
         # cluster the features and store a list of clusters, whereas each feature is referenced in the list by its index
         clusters = {ft: [] for ft in FEATURE_TYPES.values()}
         alreadyInCluster = set()

@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
-from utils.modules import loadParams, loadMolecules, DEFAULT_TRAINING_PARAMETERS, splitSamplesActivities, saveMolecules, savePerformance, plotPredictionsFromMolecules
-from utils.modules import makeTrainingRun, makeTrainingTestRun
+from utilities.modules import loadParams, loadMolecules, DEFAULT_TRAINING_PARAMETERS, splitSamplesActivities, saveMolecules, savePerformance, plotPredictionsFromMolecules
+from utilities.modules import makeTrainingRun, makeTrainingTestRun
 import os
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
         for key, value in customParams.items():
             params[key] = value
             if key == 'modelType':
-                from utils.modules import DEFAULT_MODEL_PARAMETERS
+                from utilities.modules import DEFAULT_MODEL_PARAMETERS
 
                 params['modelParams'] = DEFAULT_MODEL_PARAMETERS[value]
 

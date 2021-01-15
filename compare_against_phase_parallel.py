@@ -8,7 +8,7 @@ from ML_tools import analyse_regression
 from Pharmacophore_tools import get_pharmacophore
 sys.path.append('../Scripts/GithubRepo/')
 from pharmacophores_4 import DistanceHyperpharmacophore, LOOKUPKEYS, assignActivitiesToMolecules
-from utils.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
+from utilities.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 import matplotlib.pyplot as plt
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
