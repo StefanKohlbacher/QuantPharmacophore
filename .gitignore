@@ -147,3 +147,4 @@ cdpkit_docker_image.tar
 qphar_docker_container.tar
 qphar_docker_image.tar
 cdpkit_installer.sh
+compare_against_phase_parallel.py
