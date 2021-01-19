@@ -312,7 +312,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         for f in alignedPharmacophore:
             f.setProperty(LOOKUPKEYS['activity'], a)
 
-        # create a new aligner / scorer objekt to delete references to any pharmacophores still in memory
+        # create a new aligner / scorer object to delete references to any pharmacophores still in memory
         self.aligner = Pharm.PharmacophoreAlignment(True)
         self.scorer = Pharm.PharmacophoreFitScore()
         return alignedPharmacophore, score
