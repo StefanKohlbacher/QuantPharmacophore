@@ -311,6 +311,10 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         alignedPharmacophore.setProperty(LOOKUPKEYS['activity'], a)
         for f in alignedPharmacophore:
             f.setProperty(LOOKUPKEYS['activity'], a)
+
+        # create a new aligner / scorer objekt to delete references to any pharmacophores still in memory
+        self.aligner = Pharm.PharmacophoreAlignment(True)
+        self.scorer = Pharm.PharmacophoreFitScore()
         return alignedPharmacophore, score
 
     def _alignMolecule(self, mol, returnScore=True, returnAllConformations=False, **kwargs):
