@@ -980,7 +980,8 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             'distanceType': self.distanceType,
             'trainingDim': self.trainingDim,
             'modelType': self.modelType,
-            'modelKwargs': self.modelKwargs
+            'modelKwargs': self.modelKwargs,
+            'threshold': self.threshold,
         }
         with open('{}parameters.json'.format(path), 'w') as f:
             json.dump(parameters, f, indent=2)
