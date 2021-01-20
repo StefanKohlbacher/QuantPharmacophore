@@ -372,7 +372,8 @@ def train(template, remainingSamples, params):
             continue
 
         model.fit([remainingSamples[k] for k in range(len(remainingSamples)) if k != j],
-                  mergeOnce=params.get('mergeOnce', DEFAULT_TRAINING_PARAMETERS['mergeOnce']))
+                  mergeOnce=params.get('mergeOnce', DEFAULT_TRAINING_PARAMETERS['mergeOnce']),
+                  threshold=params.get('threshold', DEFAULT_TRAINING_PARAMETERS['threshold']))
         models.append(model)
         predictions.append(model.predict(trainingSet))
 

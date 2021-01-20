@@ -133,6 +133,7 @@ testOutput_*/
 compare_against_phase_results*/
 gaba_a_case_study_*/
 gridSearch_*/
+dev/
 
 # log files / custom file
 screenlog.*

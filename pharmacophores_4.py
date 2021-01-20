@@ -61,6 +61,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
                  name='Hyperpharmacophore',
                  alignmentTimeout=30,
                  fuzzy=True,
+                 threshold=1.5,
                  **kwargs):
         super(HyperPharmacophore, self).__init__()
         self.template = template
@@ -71,6 +72,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         self.name = name
         self.timeout = alignmentTimeout
         self.fuzzy = fuzzy
+        self.threshold = threshold
         self.kwargs = kwargs
 
         # set up pharmacophore aligner
@@ -646,7 +648,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                 r = Pharm.getTolerance(f)
                 c = Chem.get3DCoordinates(f).toArray()
                 if threshold is None:
-                    t = r
+                    t = self.threshold
                 else:
                     t = threshold
                 if calculateDistance(center, c) > t:  # center can not reach all features -> break
@@ -678,7 +680,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                     r2 = Pharm.getTolerance(f2)
                     c2 = Chem.get3DCoordinates(f2).toArray()
                     if threshold is None:
-                        t = max(r1, r2)
+                        t = self.threshold
                     else:
                         t = threshold
                     if calculateDistance(c1, c2) > t:  # feature i can not reach all features -> break inner loop
@@ -730,7 +732,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                     c2 = Chem.get3DCoordinates(f2)
 
                     if threshold is None:
-                        t = max(r1, r2)
+                        t = self.threshold
                     else:
                         t = threshold
                     if calculateDistance(c1, c2) < t:
@@ -842,7 +844,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                 r2 = Pharm.getTolerance(f2)
                 c2 = Chem.get3DCoordinates(f2).toArray()
                 if threshold is None:
-                    t = max(r1, r2)
+                    t = self.threshold
                 else:
                     t = threshold
                 if calculateDistance(c1, c2) < t:
@@ -924,7 +926,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             for m in self.mlModel:
                 predictions = m.predict(featureData)
                 y_pred.append(predictions)
-            y_pred = np.sum(np.stack(y_pred, axis=0), axis=0).flatten()
+            y_pred = np.mean(np.stack(y_pred, axis=0), axis=0).flatten()  # weighed average
 
         else:
             y_pred = self.mlModel.predict(featureData).flatten()
@@ -977,6 +979,8 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             'nrSamples': self.nrSamples,
             'distanceType': self.distanceType,
             'trainingDim': self.trainingDim,
+            'modelType': self.modelType,
+            'modelKwargs': self.modelKwargs
         }
         with open('{}parameters.json'.format(path), 'w') as f:
             json.dump(parameters, f, indent=2)
