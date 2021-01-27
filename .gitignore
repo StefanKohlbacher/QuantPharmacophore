@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 # random folders
+.idea/
 testOutput_*/
 compare_against_phase_results*/
 gaba_a_case_study_*/

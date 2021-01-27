@@ -24,6 +24,16 @@ The command should look something like this ->
 docker run -dit -P --name qphar-container -v ~/container_data:/data -w /home/qphar/ qphar:latest
 docker attach qphar-container 
 ```
+Note: the "-v" command will mount a folder from your host to a folder in the container. You can only mount folders
+when creating a container from an image -> the first time you execute that command (it is possible to create more than
+one container from the same image).  
+If you did not specify a folder at first (or there was an issue with providing the path), it is still possible to share
+data between the host and the container. However, keep in mind that this needs to be done manually by the following command
+and it will not automatically synchronise as in the case above. 
+```shell script
+docker cp <SOURCE_PATH_AT_HOST> <NAME_OF_YOUR_CONTAINER>:<TARGET_PATH_IN_CONTAINER>  # copy data into the container
+docker cp <NAME_OF_YOUR_CONTAINER>:<TARGET_PATH_IN_CONTAINER> <SOURCE_PATH_AT_HOST>  # retrieve results or similar from container to host
+```  
 
 Start container: (get a list of containers with 'docker ps -a') Execute this command if you have started a container already once from an image.
 ```shell script
