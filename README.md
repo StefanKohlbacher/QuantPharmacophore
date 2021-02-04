@@ -3,8 +3,8 @@ Code available for the quantitative pharmacophores
 
 
 ## Setup
-- Download and install docker (https://docs.docker.com/engine/install/). Make sure visualization is enabled on your computer. 
-Check this link on how to enable it -> "https://2nwiki.2n.cz/pages/viewpage.action?pageId=75202968" on how to enable visualization on your machine.
+- Download and install docker (https://docs.docker.com/engine/install/). Make sure virtualization is enabled on your computer. 
+Check this link on how to enable it -> "https://2nwiki.2n.cz/pages/viewpage.action?pageId=75202968" on how to enable virtualization on your machine.
 - Run docker as superuser or execute with sudo. On Windows just start docker.
 - Load the docker image (download from: https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing). 
 ```shell script

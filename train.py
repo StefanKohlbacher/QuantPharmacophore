@@ -43,7 +43,7 @@ if __name__ == '__main__':
                                                                         params)
         model.save('{}model/'.format(folder))
         saveMolecules(trainingMolecules, '{}trainingPredictions.sdf'.format(folder))
-        savePerformance(trainingPerformance, '{}trainingPerformance.csv'.format(folder))
+        savePerformance(trainingPerformance, '{}trainingPerformance'.format(folder))
         plotPredictionsFromMolecules(trainingSet, '{}training.png'.format(folder))
 
     else:  # testSet is not None
@@ -55,8 +55,8 @@ if __name__ == '__main__':
                                                                                                             params)
         model.save('{}model/'.format(folder))
         saveMolecules(trainingMolecules, '{}trainingPredictions.sdf'.format(folder))
-        savePerformance(trainingPerformance, '{}trainingPerformance.csv'.format(folder))
+        savePerformance(trainingPerformance, '{}trainingPerformance'.format(folder))
         plotPredictionsFromMolecules(trainingSet, '{}training.png'.format(folder))
         saveMolecules(testMolecules, '{}testPredictions.sdf'.format(folder))
-        savePerformance(testPerformance, '{}testPerformance.csv'.format(folder))
+        savePerformance(testPerformance, '{}testPerformance'.format(folder))
         plotPredictionsFromMolecules(testSet, '{}test.png'.format(folder))

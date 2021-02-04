@@ -450,7 +450,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
                                     yLabel='p(activity) predicted')
         fig.savefig('{}testPredictions.png'.format(path))
         plt.close()
-        savePerformance(performance, '{}testPerformance.csv'.format(path))
+        savePerformance(performance, '{}testPerformance'.format(path))
         for mol, y_pred in zip(testMolecules, predictions):
             addPropertyToSDFData(mol, 'prediction', y_pred)
             mol.setProperty(LOOKUPKEYS['prediction'], y_pred)
@@ -484,10 +484,10 @@ def executeTrainingValidation(datasets, parameters, outputPath, jobNr):
 
     model.save('{}{}/model/'.format(outputPath, jobNr))
     saveMolecules(trainingMolecules, '{}{}/trainingPredictions.sdf'.format(outputPath, jobNr))
-    savePerformance(trainingPerformance, '{}{}/trainingPerformance.csv'.format(outputPath, jobNr))
+    savePerformance(trainingPerformance, '{}{}/trainingPerformance'.format(outputPath, jobNr))
     plotPredictionsFromMolecules(trainingMolecules, '{}{}/training.png'.format(outputPath, jobNr))
     saveMolecules(validationMolecules, '{}{}/validationPredictions.sdf'.format(outputPath, jobNr))
-    savePerformance(validationPerformance, '{}{}/validationPerformance.csv'.format(outputPath, jobNr))
+    savePerformance(validationPerformance, '{}{}/validationPerformance'.format(outputPath, jobNr))
     plotPredictionsFromMolecules(validationMolecules, '{}{}/validation.png'.format(outputPath, jobNr))
 
 
@@ -536,11 +536,19 @@ def saveMolecules(molecules, path, multiconf=True):
 
 def savePerformance(performance, path):
     if not isinstance(performance, pd.DataFrame):
-        with open(path, 'w') as f:
+        for key in list(performance.keys()):
+            if isinstance(performance[key], np.integer): 
+                performance[key] = int(performance[key])
+            elif isinstance(performance[key], np.floating):
+                performance[key] = float(performance[key])
+            elif isinstance(performance[key], np.ndarray): 
+                performance[key] = performance[key].tolist()
+
+        with open('{}.json'.format(path), 'w') as f:
             json.dump(performance, f)
 
     else:
-        performance.to_csv(path)
+        performance.to_csv('{}.csv'.format(path))
 
 
 def runParallel(targetFn, jobs, nrProcesses=2):
@@ -550,7 +558,7 @@ def runParallel(targetFn, jobs, nrProcesses=2):
         pool = mp.Pool(nrProcesses)
         scheduledJobs = []
         for job in jobs:
-            pool.apply_async(targetFn, args=job)
+            scheduledJobs.append(pool.apply_async(targetFn, args=job))
 
         for job in scheduledJobs:
             job.get()

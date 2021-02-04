@@ -970,6 +970,13 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             with open('{}mlModel.pkl'.format(path), 'wb') as mlfile:
                 pickle.dump(self.mlModel, mlfile)
 
+        # features = {}
+        # for i in range(self.cleanedHP.numFeatures):
+        #     features[i] = {name: self.cleanedHP.getFeature(i).getProperty(key) for name, key in LOOKUPKEYS.items() if name != 'prediction'}
+        features = {i: {name: self.cleanedHP.getFeature(i).getProperty(key) for name, key in LOOKUPKEYS.items() if name != 'prediction'} for i in range(self.cleanedHP.numFeatures)}
+        with open('{}featureProperties.json'.format(path), 'w') as f:
+            json.dump(features, f)
+
         parameters = {
             'fuzzy': self.fuzzy,
             'weightType': self.weightType,
@@ -1017,6 +1024,12 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         # load hp model
         if os.path.isfile('{}hpModel.pml'.format(path)): 
             self.cleanedHP = load_pml_pharmacophore('{}hpModel.pml'.format(path))
+            if os.path.isfile('{}featureProperties.json'.format(path)):
+                with open('{}featureProperties.json'.format(path), 'r') as f:
+                    features = json.load(f)
+                for i, properties in features.items():
+                    for name, p in properties.items():
+                        self.cleanedHP.getFeature(i).setProperty(LOOKUPKEYS[name], p)
         else:
             print('Could not load hp model at file: hpModel.pml')
             
