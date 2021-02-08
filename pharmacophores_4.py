@@ -1029,7 +1029,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                     features = json.load(f)
                 for i, properties in features.items():
                     for name, p in properties.items():
-                        self.cleanedHP.getFeature(i).setProperty(LOOKUPKEYS[name], p)
+                        self.cleanedHP.getFeature(int(i)).setProperty(LOOKUPKEYS[name], p)
         else:
             print('Could not load hp model at file: hpModel.pml')
             
