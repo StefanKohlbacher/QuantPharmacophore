@@ -11,7 +11,7 @@ from collections.abc import Iterable
 from abc import abstractmethod
 import signal
 from utilities.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
-from utilities.Pharmacophore_tools import get_pharmacophore, save_pharmacophore
+from utilities.Pharmacophore_tools import get_pharmacophore, save_pharmacophore, load_pml_pharmacophore
 
 
 signal.signal(signal.SIGALRM, runTimeHandler)
@@ -995,7 +995,6 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
     def load(self, path, **kwargs):
         import pickle
-        from Pharmacophore_tools import load_pml_pharmacophore
 
         with open('{}parameters.json'.format(path), 'r') as f:
             parameters = json.load(f)
@@ -1738,7 +1737,6 @@ class SequentialHyperpharmacophore(Pharm.BasicPharmacophore):
 
     def load(self, path, **kwargs):
         import pickle
-        from Pharmacophore_tools import load_pml_pharmacophore
 
         with open('{}parameters.json'.format(path), 'r') as f:
             parameters = json.load(f)

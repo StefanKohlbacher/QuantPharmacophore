@@ -454,7 +454,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
         for mol, y_pred in zip(testMolecules, predictions):
             addPropertyToSDFData(mol, 'prediction', y_pred)
             mol.setProperty(LOOKUPKEYS['prediction'], y_pred)
-        saveMolecules(testMolecules, '{}testPredictions.csv'.format(path))
+        saveMolecules(testMolecules, '{}testPredictions.sdf'.format(path))
 
     # save aggregated test results
     df = pd.DataFrame.from_dict(modelPerformances, orient='index')
@@ -489,7 +489,6 @@ def executeTrainingValidation(datasets, parameters, outputPath, jobNr):
     saveMolecules(validationMolecules, '{}{}/validationPredictions.sdf'.format(outputPath, jobNr))
     savePerformance(validationPerformance, '{}{}/validationPerformance'.format(outputPath, jobNr))
     plotPredictionsFromMolecules(validationMolecules, '{}{}/validation.png'.format(outputPath, jobNr))
-
 
 
 def predict(model, samples, **kwargs):

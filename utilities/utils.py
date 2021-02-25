@@ -186,7 +186,7 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     # add regression line
     m, b = np.polyfit(y_true.flatten(), y_pred.flatten(), 1)
     x = np.arange(low_activity_lim, high_activity_lim+1)
-    ax.plot(x, m*x+b)
+    ax.plot(x, m*x+b, color='r')
 
     # set limits on plot
     ax.set_xlim(limits)
