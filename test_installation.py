@@ -34,8 +34,8 @@ try:
 
     print('Testing simple model initialization')
 
-    if os.path.isfile('./test/acetyl_conformations.sdf'):
-        molecules = loadMolecules('./test/acetyl_conformations.sdf')
+    if os.path.isfile('./_test/acetyl_conformations.sdf'):
+        molecules = loadMolecules('./_test/acetyl_conformations.sdf')
         molecules, activities = splitSamplesActivities(molecules, 'pchembl_value')
 
         template, remainingMolecules = selectMostRigidMolecule(molecules)
@@ -49,4 +49,4 @@ try:
 except ImportError:
     print('Failed to import custom modules')
 
-print('Finished import test')
+print('Finished import _test')

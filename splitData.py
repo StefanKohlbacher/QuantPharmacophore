@@ -10,7 +10,7 @@ if __name__ == '__main__':
     parser.add_argument('-validationFraction', required=False, type=float, default=None,
                         help='fraction of validation data. Value between 0 and 1')
     parser.add_argument('-testFraction', required=False, type=float, default=None,
-                        help='fraction of test data. Value between 0 and 1')
+                        help='fraction of _test data. Value between 0 and 1')
     parser.add_argument('-o', required=True, type=str, help='folder where output files should be saved to')
     args = parser.parse_args()
 

@@ -29,7 +29,6 @@ class SDFReader:
         self.multiconf = multiconf
         self.nr_mols = nr_mols
         self.nr_samples = None
-        # self.property_dict = {p: None for p in properties} if properties is not None else None
         self.properties = set([" <"+p+">" for p in properties]) if properties is not None else None
 
         Chem.setMultiConfImportParameter(self.r, multiconf)
@@ -82,7 +81,6 @@ class SDFReader:
         return iter(self)
 
     def _extract_properties_from_mol(self, mol):
-        # read_properties = self.property_dict.copy()
         read_properties = {}
         data = Chem.getStructureData(mol)
         for element in data:

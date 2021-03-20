@@ -1,4 +1,0 @@
-{
-  "weightType": ["distance", null, "nrOfFeatures"],
-  "modelType": ["randomForest", "ridge", "pca_lr", "pca_ridge"]
-}

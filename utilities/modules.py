@@ -85,9 +85,9 @@ def estimateKLDivergence(activities):
 
 def splitData(molecules, activityName, validationFraction=None, testFraction=None):
     """
-    Split data into training, validation [optional], test [optional] set. The least and most active compounds are
+    Split data into training, validation [optional], _test [optional] set. The least and most active compounds are
     retained in the training set.
-    If both test and validation fraction are given, then test fraction determines size of training set including
+    If both _test and validation fraction are given, then _test fraction determines size of training set including
     validation set. The validation set is then taken in proportion from the total training set.
     I.e.
     testFraction = 0.2; validationFraction = 0.1
@@ -108,10 +108,10 @@ def splitData(molecules, activityName, validationFraction=None, testFraction=Non
     del sortedArgs[0], sortedArgs[-1]
 
     if validationFraction is None and testFraction is None:
-        print('Fraction of validation or test set not specified. Training set is kept as it is.')
+        print('Fraction of validation or _test set not specified. Training set is kept as it is.')
         return {'trainingSet': molecules, 'validationSet': [], 'testSet': []}
 
-    if validationFraction is None:  # just train-test split
+    if validationFraction is None:  # just train-_test split
         trainingFraction = 1-testFraction
         print('Training set: {} %'.format(trainingFraction*100))
         print('Test set: {} %'.format(testFraction * 100))
@@ -137,7 +137,7 @@ def splitData(molecules, activityName, validationFraction=None, testFraction=Non
 
         trainingIndices.extend(sortedArgs)
 
-    else:  # both are not None --> train-validation-test split
+    else:  # both are not None --> train-validation-_test split
         trainingFraction = (1 - testFraction) - (1 - testFraction) * validationFraction
         print('Training set: {} %'.format(trainingFraction * 100))
         print('Validation set: {} %'.format((1 - testFraction) * validationFraction * 100))
@@ -199,7 +199,7 @@ def addPropertyToSDFData(molecule, key, value):
 def checkDataRequirements(samples, activityName=None):
     import matplotlib.pyplot as plt
 
-    if activityName is None:  # test/prediction data --> just check whether we have coordinates
+    if activityName is None:  # _test/prediction data --> just check whether we have coordinates
         for i, sample in enumerate(samples):
             hasCoordinates = checkCoordinates(sample)
             if not hasCoordinates:
@@ -313,7 +313,7 @@ def makeTrainingRun(molecules, activities, parameters):
 
 def makeTrainingTestRun(trainingMolecules, trainingActivities, testMolecules, testActivities, parameters):
     """
-    Trains model on training set and evaluates it on the test set. Best model along with its predictions are returned.
+    Trains model on training set and evaluates it on the _test set. Best model along with its predictions are returned.
     :param trainingMolecules:
     :param trainingActivities:
     :param testMolecules:
@@ -335,7 +335,7 @@ def makeTrainingTestRun(trainingMolecules, trainingActivities, testMolecules, te
     # train
     models, trainingpredictions = train(template, remainingMolecules, parameters)  # predictions are [template, *remaining]
 
-    # evaluate and select based model based on test set
+    # evaluate and select based model based on _test set
     testPerformance = {}
     testPredictions = {}
     for i, model in enumerate(models):
@@ -425,7 +425,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
     # train models in parallel and evaluate on validation set. Save results, models and predictions.
     runParallel(executeTrainingValidation, jobs, nrProcesses=nrProcesses)
 
-    # for each run, load the saved models and test them on the test set --> determine best model overall
+    # for each run, load the saved models and _test them on the _test set --> determine best model overall
     testSet = loadMolecules(datasets['testSet'])
     testMolecules, testActivities = splitSamplesActivities(testSet, 'activity')
 
@@ -441,7 +441,6 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
             mol.setProperty(LOOKUPKEYS['prediction'], pred)
             predictions.append(pred)
         predictions = np.array(predictions)
-        # predictions = predict(model, testMolecules)
         performance = analyse_regression(np.array(testActivities), predictions)
         modelPerformances[i] = performance
 
@@ -456,7 +455,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
             mol.setProperty(LOOKUPKEYS['prediction'], y_pred)
         saveMolecules(testMolecules, '{}testPredictions.sdf'.format(path))
 
-    # save aggregated test results
+    # save aggregated _test results
     df = pd.DataFrame.from_dict(modelPerformances, orient='index')
     df.to_csv('{}gridSearchResults.csv'.format(outputPath))
     return df

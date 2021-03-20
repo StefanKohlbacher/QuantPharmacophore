@@ -7,7 +7,7 @@ import os
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('-trainingSet', required=True, type=str, help='SDF-file containing training samples')
-    parser.add_argument('-testSet', required=False, default=None, type=str, help='SDF-file containing test samples')
+    parser.add_argument('-testSet', required=False, default=None, type=str, help='SDF-file containing _test samples')
     parser.add_argument('-p', required=False, type=str, default=None, help='path of parameters file')
     parser.add_argument('-o', required=True, type=str, help='folder where output files should be saved to')
     args = parser.parse_args()
