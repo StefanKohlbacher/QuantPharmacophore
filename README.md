@@ -1,5 +1,6 @@
 # QuantPharmacophore
-Code available for the quantitative pharmacophores
+Code available for the quantitative pharmacophores  
+Data for reproducing is available for download at:  https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing
 
 
 ## Setup

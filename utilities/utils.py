@@ -24,6 +24,10 @@ def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
     return closestFeature, smallestDistance
 
 
+def getGaussianWeight(query, reference, **kwargs):
+    raise NotImplementedError
+
+
 def getDistanceWeight(distance, maxDistance=1e3, **kwargs):
     distance = np.clip(distance, 1/maxDistance, maxDistance)  # get distance into a reasonable range, so weights don't explode
     return 1/distance

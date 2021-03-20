@@ -9,7 +9,7 @@ import numpy as np
 from collections.abc import Iterable
 from abc import abstractmethod
 import signal
-from utilities.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, calculateDistance, getFeatureFrequencyWeight
+from utilities.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
 from utilities.Pharmacophore_tools import get_pharmacophore, save_pharmacophore, load_pml_pharmacophore
 
 
