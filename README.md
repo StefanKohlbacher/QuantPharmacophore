@@ -6,45 +6,23 @@ Data for reproducing is available for download at:  https://drive.google.com/dri
 ## Setup
 - Download and install docker (https://docs.docker.com/engine/install/). Make sure virtualization is enabled on your computer. 
 Check this link on how to enable it -> "https://2nwiki.2n.cz/pages/viewpage.action?pageId=75202968" on how to enable virtualization on your machine.
-- Run docker as superuser or execute with sudo. On Windows just start docker.
-- Load the docker image (download from: https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing). 
+- create and run docker container
 ```shell script
-docker load --input qphar_docker_image.tar
+bash make_docker_container.sh
 ```
-- Run the image or start the container and establish a connection to share data between your host and the container.
-Specifying a volume to share data is not necessary, but useful. If you provide it, just make sure
-the docker has read/write access to the folder.
 
-Run image: (get list of images with 'docker images') Execute this command the first time you start it.
-```shell script
-docker run -dit -P --name <NAME_OF_CONTAINER_TO_BE_CREATED> -v <ABSOLUTE_PATH_TO_YOUR_FOLDER_TO_BE_SHARED_WITH_THE_CONTAINER>:/data -w <WORKING_DIRECTORY> <IMAGE_ID>
-docker attach <NAME_OF_CONTAINER_TO_BE_CREATED>
-```
-The command should look something like this -> 
-```shell script
-docker run -dit -P --name qphar-container -v ~/container_data:/data -w /home/qphar/ qphar:latest
-docker attach qphar-container 
-```
-Note: the "-v" command will mount a folder from your host to a folder in the container. You can only mount folders
-when creating a container from an image -> the first time you execute that command (it is possible to create more than
-one container from the same image).  
-If you did not specify a folder at first (or there was an issue with providing the path), it is still possible to share
-data between the host and the container. However, keep in mind that this needs to be done manually by the following command
-and it will not automatically synchronise as in the case above. 
+The above command will create a shared folder `~/container_data` on your host system with the docker container (`/qphar/data`). 
+This will synchronise any files in these folders automatically and allows sharing of data as well as extracting data after running the
+models. If you want to copy files manually, you can do so with the following commands.  
 ```shell script
 docker cp <SOURCE_PATH_AT_HOST> <NAME_OF_YOUR_CONTAINER>:<TARGET_PATH_IN_CONTAINER>  # copy data into the container
 docker cp <NAME_OF_YOUR_CONTAINER>:<TARGET_PATH_IN_CONTAINER> <SOURCE_PATH_AT_HOST>  # retrieve results or similar from container to host
 ```  
 
-Start container: (get a list of containers with 'docker ps -a') Execute this command if you have started a container already once from an image.
+Start container: Execute this command if you have created the container already. (get a list of containers with 'docker ps -a') 
 ```shell script
 docker start <NAME_OF_YOUR_CONTAINER>
 docker attach <NAME_OF_YOUR_CONTAINER>
-``` 
-Which would look something like this: 
-```shell script
-docker start qphar-container
-docker attach qphar-container
 ``` 
 
 Once you are attached to a shell inside the container, you can run the scripts (see below). If you are sharing data with the container
