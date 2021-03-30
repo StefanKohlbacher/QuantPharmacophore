@@ -138,7 +138,6 @@ dev/
 
 # log files / custom file
 screenlog.*
-Dockerfile
 requirements.txt
 train_old.py
 predict_old.py
