@@ -8,7 +8,7 @@ Data for reproducing is available for download at:  https://drive.google.com/dri
 Check this link on how to enable it -> "https://2nwiki.2n.cz/pages/viewpage.action?pageId=75202968" on how to enable virtualization on your machine.
 - create and run docker container
 ```shell script
-bash make_docker_container.sh
+bash setup.sh
 ```
 
 The above command will create a shared folder `~/container_data` on your host system with the docker container (`/qphar/data`). 
