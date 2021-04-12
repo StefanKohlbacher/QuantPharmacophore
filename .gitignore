@@ -150,3 +150,6 @@ qphar_docker_image.tar
 cdpkit_installer.sh
 compare_against_phase_parallel.py
 _*
+supporting_data/phase_data
+supporting_data/cross_validation/CV20-80
+supporting_data/cross_validation/CV80-20
