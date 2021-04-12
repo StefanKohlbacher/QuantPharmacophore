@@ -1,11 +1,12 @@
 # QuantPharmacophore
 Code available for the quantitative pharmacophores  
-Data for reproducing is available for download at:  https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing
+<!-- Data for reproducing is available for download at:  https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing -->
 
 
 ## Setup
 - Download and install docker (https://docs.docker.com/engine/install/). Make sure virtualization is enabled on your computer. 
 Check this link on how to enable it -> "https://2nwiki.2n.cz/pages/viewpage.action?pageId=75202968" on how to enable virtualization on your machine.
+- download cdpkit_installer from https://drive.google.com/drive/folders/1kicJIM6hT0VAc-Ir83ex49YscUibP_GC?usp=sharing
 - create and run docker container
 ```shell script
 bash setup.sh
