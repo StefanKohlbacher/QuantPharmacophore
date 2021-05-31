@@ -25,10 +25,10 @@ import os
 print('Current working directory', os.getcwd())
 
 try:
-    from pharmacophores_4 import DistanceHyperpharmacophore
-    from utilities.Molecule_tools import SDFReader
-    from utilities.modules import loadMolecules, splitSamplesActivities, DEFAULT_TRAINING_PARAMETERS
-    from utilities.utils import selectMostRigidMolecule
+    from src.hyperpharmacophore import DistanceHyperpharmacophore
+    from src.Molecule_tools import SDFReader
+    from src.modules import loadMolecules, splitSamplesActivities, DEFAULT_TRAINING_PARAMETERS
+    from src.utils import selectMostRigidMolecule
 
     print('Successfully import custom packages')
 

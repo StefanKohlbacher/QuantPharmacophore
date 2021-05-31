@@ -4,10 +4,10 @@ import os
 import matplotlib.pyplot as plt
 import json
 import multiprocessing as mp
-from pharmacophores_4 import DistanceHyperpharmacophore, assignActivitiesToMolecules, LOOKUPKEYS
-from utilities.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
-from utilities.Molecule_tools import SDFReader
-from utilities.utils import AlignmentError, extractActivityFromMolecule, selectMostRigidMolecule, make_activity_plot, \
+from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules, LOOKUPKEYS
+from src.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
+from src.Molecule_tools import SDFReader
+from src.utils import AlignmentError, extractActivityFromMolecule, selectMostRigidMolecule, make_activity_plot, \
     numFeaturesBaseline, standardPropertiesBaseline, ParamsHoldingClass
 
 BASEPATH = '/data/local/skohlbacher/GRAIL_QSAR/Data/chembl_targets/'
@@ -87,6 +87,7 @@ def cv(folds, args, hpModel, basePath):
         results[i] = testPerformance.to_dict()
 
         # plot predictions
+        # TODO: save predictions
         y_pred = np.array(preds[modelPerformance.index.values[0]])
         predictions[i]['y_pred'] = y_pred
         if not os.path.isdir(args.logPath):

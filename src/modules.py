@@ -1,14 +1,12 @@
 import CDPL.Chem as Chem
-import CDPL.Math as Math
-import CDPL.Base as Base
 import CDPL.Pharm as Pharm
 import numpy as np
 import pandas as pd
 import sys
 import json
-from pharmacophores_4 import LOOKUPKEYS, DistanceHyperpharmacophore
-from utilities.utils import AlignmentError
-from utilities.ML_tools import analyse_regression
+from src.hyperpharmacophore import LOOKUPKEYS, DistanceHyperpharmacophore
+from src.utils import AlignmentError
+from src.ML_tools import analyse_regression
 
 
 REQUIREMENTS = {
@@ -164,7 +162,7 @@ def splitData(molecules, activityName, validationFraction=None, testFraction=Non
 
 
 def splitSamplesActivities(samples, activityName):
-    from utilities.utils import extractActivityFromMolecule
+    from src.utils import extractActivityFromMolecule
 
     molecules, activities = [], []
     for i, mol in enumerate(samples):
@@ -281,7 +279,7 @@ def makeTrainingRun(molecules, activities, parameters):
     :param parameters:
     :return:
     """
-    from utilities.utils import selectMostRigidMolecule
+    from src.utils import selectMostRigidMolecule
 
     # prepare data
     templateIndex, remainingMoleculesIndices = selectMostRigidMolecule(molecules, returnIndices=True)
@@ -321,7 +319,7 @@ def makeTrainingTestRun(trainingMolecules, trainingActivities, testMolecules, te
     :param parameters:
     :return:
     """
-    from utilities.utils import selectMostRigidMolecule
+    from src.utils import selectMostRigidMolecule
 
     # prepare data
     templateIndex, remainingMoleculesIndices = selectMostRigidMolecule(trainingMolecules, returnIndices=True)
@@ -391,7 +389,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
 
     from itertools import product
     import os
-    from utilities.utils import make_activity_plot
+    from src.utils import make_activity_plot
     import matplotlib.pyplot as plt
 
     # create folder where all results are saved to
@@ -505,7 +503,7 @@ def loadParams(path):
 
 
 def loadMolecules(path, multiconf=True):
-    from utilities.Molecule_tools import SDFReader
+    from src.Molecule_tools import SDFReader
 
     r = SDFReader(path, multiconf=multiconf)
     molecules = [mol for mol in r]
@@ -517,7 +515,7 @@ def loadMolecules(path, multiconf=True):
 
 
 def saveMolecules(molecules, path, multiconf=True):
-    from utilities.Molecule_tools import mol_to_sdf
+    from src.Molecule_tools import mol_to_sdf
 
     # add activity property if present, so we can access it later on by the known name
     for mol in molecules:
@@ -569,7 +567,7 @@ def runParallel(targetFn, jobs, nrProcesses=2):
 
 
 def plotPredictionsFromMolecules(molecules, path):
-    from utilities.utils import make_activity_plot
+    from src.utils import make_activity_plot
     import matplotlib.pyplot as plt
 
     y_true, y_pred = [], []

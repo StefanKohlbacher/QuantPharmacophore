@@ -3,7 +3,7 @@ import pandas as pd
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
-from utilities.Pharmacophore_tools import get_pharmacophore
+from src.Pharmacophore_tools import get_pharmacophore
 
 
 def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
@@ -83,7 +83,7 @@ def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, ret
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from utilities.ML_tools import analyse_regression
+    from src.ML_tools import analyse_regression
 
     numFeatures = []
     activities = []
@@ -119,8 +119,8 @@ def standardPropertiesBaseline(trainingSet, testSet, activityLookupKey, model=No
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from utilities.Molecule_tools import calculateStandardProperties
-    from utilities.ML_tools import analyse_regression
+    from src.Molecule_tools import calculateStandardProperties
+    from src.ML_tools import analyse_regression
 
     # extract training properties
     standardProperties = calculateStandardProperties(trainingSet)
@@ -169,7 +169,10 @@ def selectMostRigidMolecule(molecules, returnIndices=False):
 
         numberOfFlexibleBondsPerMolecule.append(singleNonHydrogenBonds)
 
-    mostRigidMolecule = np.argmin(numberOfFlexibleBondsPerMolecule)
+    try:
+        mostRigidMolecule = np.argmin(numberOfFlexibleBondsPerMolecule)
+    except IndexError:
+        mostRigidMolecule = 0
     if returnIndices:
         return mostRigidMolecule, [k for k in range(len(molecules)) if k != mostRigidMolecule]
     return molecules[mostRigidMolecule], [molecules[i] for i in range(len(molecules)) if i != mostRigidMolecule]

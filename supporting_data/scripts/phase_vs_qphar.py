@@ -5,9 +5,8 @@ import sys
 import json
 from Molecule_tools import SDFReader
 from ML_tools import analyse_regression
-sys.path.append('../Scripts/GithubRepo/')
-from pharmacophores_4 import DistanceHyperpharmacophore, assignActivitiesToMolecules
-from utilities.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
+from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules
+from src.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 import matplotlib.pyplot as plt
 import CDPL.Chem as Chem
 from itertools import product
@@ -16,7 +15,8 @@ import multiprocessing as mp
 
 # define some general parameters
 NR_PROCESSES = 12
-BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
+# BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
+BASEPATH = './supportding_data/phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
 
@@ -35,7 +35,8 @@ def main(args):
     print('Running', args.__dict__)
 
     # load data
-    r = SDFReader('{b}Debnath_2002_compounds_conformations.sdf'.format(b=BASEPATH))
+    # r = SDFReader('{b}Debnath_2002_compounds_conformations.sdf'.format(b=BASEPATH))
+    r = SDFReader('{b}conformations.sdf'.format(b=BASEPATH))
     molecules, activities = [], []
     for mol in r:
         a = extractActivityFromMolecule(mol, ACTIVITY_NAME)
@@ -154,7 +155,7 @@ def run_not_parallel(jobs):
 if __name__ == '__main__':
 
     # determine output path
-    outputPath = 'compare_against_phase_results'
+    outputPath = './supportding_data/comparison_against_phase'
     i = 1
     while os.path.isdir('{f}_{i}/'.format(f=outputPath, i=str(i))):
         i += 1

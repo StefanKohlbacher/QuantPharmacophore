@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
 import os
 import json
-from utilities.modules import loadMolecules, saveMolecules, addPropertyToSDFData
-from utilities.Pharmacophore_tools import load_pml_pharmacophore
-from pharmacophores_4 import DistanceHyperpharmacophore
+from src.modules import loadMolecules, saveMolecules, addPropertyToSDFData
+from src.Pharmacophore_tools import load_pml_pharmacophore
+from src.hyperpharmacophore import DistanceHyperpharmacophore
 
 
 if __name__ == '__main__':
