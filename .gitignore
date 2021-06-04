@@ -151,5 +151,5 @@ compare_against_phase_parallel.py
 _*
 supporting_data/phase_data
 supporting_data/cross_validation/CV20-80
-supporting_data/cross_validation/CV80-20
+supporting_data/cross_validation/targets
 DA_Matthias

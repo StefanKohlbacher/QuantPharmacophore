@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import os
 import json
 from src.modules import loadMolecules, saveMolecules, addPropertyToSDFData
-from src.Pharmacophore_tools import load_pml_pharmacophore
+from src.pharmacophore_tools import load_pml_pharmacophore
 from src.hyperpharmacophore import DistanceHyperpharmacophore
 
 

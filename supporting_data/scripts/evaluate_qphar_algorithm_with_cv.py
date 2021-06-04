@@ -4,16 +4,13 @@ import os
 import matplotlib.pyplot as plt
 import json
 import multiprocessing as mp
+from argparse import ArgumentParser
 from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules, LOOKUPKEYS
-from src.ML_tools import analyse_regression, aggregateRegressionCrossValidationResults
-from src.Molecule_tools import SDFReader
+from src.ml_tools import analyse_regression, aggregateRegressionCrossValidationResults
+from src.molecule_tools import SDFReader
 from src.utils import AlignmentError, extractActivityFromMolecule, selectMostRigidMolecule, make_activity_plot, \
     numFeaturesBaseline, standardPropertiesBaseline, ParamsHoldingClass
 
-BASEPATH = '/data/local/skohlbacher/GRAIL_QSAR/Data/chembl_targets/'
-FILENAME = 'conformations.sdf'
-np.random.seed(991)
-NR_PROCESSES = min(10, mp.cpu_count())
 
 params = {
     'modelType': 'randomForest',
@@ -25,10 +22,10 @@ params = {
 }
 
 
-def cv(folds, args, hpModel, basePath):
+def cv(folds, args):
     print('Running {}'.format(args.name))
     # load molecules and split into folds
-    r = SDFReader('{basePath}{d}{f}'.format(basePath=basePath, d=args.dataset, f=FILENAME))
+    r = SDFReader(args.inputFile)
     molecules = [mol for mol in r]
     activities = [extractActivityFromMolecule(mol, 'pchembl_value') for mol in molecules]
     assignActivitiesToMolecules(molecules, activities)
@@ -51,7 +48,7 @@ def cv(folds, args, hpModel, basePath):
             template, remainingMolecules = selectMostRigidMolecule(trainingSet)
             for j in range(len(remainingMolecules)):
                 try:
-                    model = hpModel([template, remainingMolecules[j]], **{k: v for k, v in args if k != 'logPath'})
+                    model = DistanceHyperpharmacophore([template, remainingMolecules[j]], **{k: v for k, v in args if k != 'logPath'})
                 except AlignmentError:
                     continue
 
@@ -65,7 +62,7 @@ def cv(folds, args, hpModel, basePath):
         else:
             for j in range(len(trainingSet)-1):
                 try:
-                    model = hpModel(trainingSet[j: j+2], **{k: v for k, v in args if k != 'logPath'})
+                    model = DistanceHyperpharmacophore(trainingSet[j: j+2], **{k: v for k, v in args if k != 'logPath'})
                 except AlignmentError:
                     continue
                 model.fit([trainingSet[k] for k in range(len(trainingSet)) if k not in [j, j+1]],
@@ -79,7 +76,7 @@ def cv(folds, args, hpModel, basePath):
         if len(modelPerformance) == 0:
             continue
 
-        # evaluate best training model on _test set
+        # evaluate best training model on validation set
         modelPerformance = pd.DataFrame.from_dict(modelPerformance, orient='index')
         metric = getattr(args, 'metric', 'RMSE')
         modelPerformance.sort_values(metric, inplace=True, ascending=False if metric in ['R2'] else True)
@@ -87,19 +84,35 @@ def cv(folds, args, hpModel, basePath):
         results[i] = testPerformance.to_dict()
 
         # plot predictions
-        # TODO: save predictions
         y_pred = np.array(preds[modelPerformance.index.values[0]])
-        predictions[i]['y_pred'] = y_pred
-        if not os.path.isdir(args.logPath):
-            os.makedirs(args.logPath)
-        fig, _ = make_activity_plot(np.array(testActivities), y_pred)
-        fig.savefig('{logPath}predictions_{i}.png'.format(logPath=args.logPath, i=i))
-        plt.close(fig)
+        # predictions[i]['y_pred'] = y_pred
+        # if not os.path.isdir(args.logPath):
+        #     os.makedirs(args.logPath)
+        # fig, _ = make_activity_plot(np.array(testActivities), y_pred)
+        # fig.savefig('{logPath}predictions_{i}.png'.format(logPath=args.logPath, i=i))
+        # plt.close(fig)
 
-        # make baselines for fold
+        # save predictions
+        y_pred = pd.DataFrame(y_pred, columns=['y_pred'])
+        y_pred['y_true'] = testActivities
+        y_pred['mol_indices'] = fold['_test']
+        y_pred.to_csv('{}predictions_{i}.csv'.format(args.outputDir, i=i))
+
         mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # ensure we use the same ML algorithm for a fair comparison between datasets
-        featuresBaseline[i] = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel)
-        propsBaseline[i] = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel)
+
+        # pharmacophore feature baseline
+        featuresBaseline[i], featurePredictions = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
+        y_pred = pd.DataFrame(featurePredictions, columns=['y_pred'])
+        y_pred['y_true'] = testActivities
+        y_pred['mol_indices'] = fold['_test']
+        y_pred.to_csv('{}predictions_numFeaturesBaseline_{i}.csv'.format(args.outputDir, i=i))
+
+        # physico-chemical properties baselines
+        propsBaseline[i], propPredictions = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
+        y_pred = pd.DataFrame(propPredictions, columns=['y_pred'])
+        y_pred['y_true'] = testActivities
+        y_pred['mol_indices'] = fold['_test']
+        y_pred.to_csv('{}predictions_propsBaseline_{i}.csv'.format(args.outputDir, i=i))
 
     if len(results) == 0:
         # create empty df and plots. then return
@@ -126,97 +139,80 @@ def cv(folds, args, hpModel, basePath):
         merged[key] = value
 
     # save and plot results
-    merged.to_csv('{logPath}cv_results.csv'.format(logPath=args.logPath), header=True, index=False)
+    merged.to_csv('{}cv_results.csv'.format(args.outputDir), header=True, index=False)
 
     # successfully processed assay -> create file to indicate we are done
-    open('{logPath}finished.log'.format(logPath=args.logPath), 'w').close()
+    open('{}finished.log'.format(args.outputDir), 'w').close()
 
     return merged
 
 
-def main(params,
-         filename,
-         hpModel,
-         nrProcesses=None,
-         targetDict=None,
-         basePath=None,
-         cvSplit=None,
-         ignoreVersioning=False,
-         **kwargs):
-    if nrProcesses is None:
-        nrProcesses = NR_PROCESSES
+def parseArgs():
+    parser = ArgumentParser()
+    parser.add_argument('-nrProcesses', default=10, type=int, required=False)
+    parser.add_argument('-cvSplit', type=str, required=True, help='filenmame of file containing molecule indices of the cv folds')
+    parser.add_argument('-outputName', required=False, default=None, type=str, help='')
+    parser.add_argument('-ignoreVersioning', type=bool, required=False, default=False)
+    args = parser.parse_args()
+    return args
 
-    if basePath is None:
-        basePath = BASEPATH
 
-    # determine filename
+if __name__ == '__main__':
+
+    basePath = '../cross-validation'
+    filename = 'conformations.sdf'
+
+    inputArgs = parseArgs()
+
+    # determine output
     i = 1
-    if not ignoreVersioning:
-        while os.path.isdir('{f}_{i}/'.format(f=filename, i=str(i))):
+    outputName = inputArgs.outputName if inputArgs.outputName is not None else inputArgs.cvSplit
+    if not inputArgs.ignoreVersioning:
+        while os.path.isdir('{}/results/{}_{}'.format(basePath, outputName, i)):
             i += 1
-    filename = '{f}_{i}/'.format(f=filename, i=str(i))
-    os.mkdir(filename)
-
-    # load basic information about datasets
-    if targetDict is None:
-        with open('{basePath}evaluation_targets.json'.format(basePath=basePath), 'r') as f:
-            targetDict = json.load(f)
+    outputDir = '{}/results/{}_{}'.format(basePath, outputName, str(i))
+    os.makedirs(outputDir)
 
     jobs = []
-    if nrProcesses > 1:
-        pool = mp.Pool(min(len(targetDict), nrProcesses))
+    pool = mp.Pool(inputArgs.nrProcesses)
+    for target in os.listdir('{}/splits/'.format(basePath)):
+        for assay in os.listdir('{}/splits/{}/'.format(basePath, target)):
+            if not os.path.isfile('{}/splits/{}/{}.json'.format(basePath, target, inputArgs.cvSplit)):
+                continue
 
-    with open('{f}params.json'.format(f=filename), 'w') as paramsFile:
-        tempParams = {k: v for k, v in params.items()}
-        for k, v in kwargs.items():
-            tempParams[k] = v
-        json.dump(tempParams, paramsFile, indent=2)
-
-    for name, information in targetDict.items():
-        if not isinstance(information['assayID'], list):
-            information['assayID'] = [information['assayID']]
-
-        for assay in information['assayID']:
             tempParams = {
-                'dataset': '{target}/{assay}/'.format(target=name, assay=assay),
-                'name': '{target}_{assay}'.format(target=name, assay=assay),
-                'logPath': '{path}{folder}/{assay}/'.format(path=filename, folder=name, assay=assay),
+                'inputFile': '{}/targets/{}/{}/conformations.sdf'.format(basePath, target, assay),
+                'name': '{target}_{assay}'.format(target=inputArgs.name, assay=assay),
+                'outputDir': '{}/{}/{}/'.format(outputDir, target, assay),
             }
 
-            if os.path.isfile('{logPath}finished.log'.format(logPath=tempParams['logPath'])):  # already processed successfully
+            if os.path.isfile('{}finished.log'.format(tempParams['outputDir'])):
                 continue
 
             for key, value in params.items():
                 tempParams[key] = value
-            for key, value in kwargs.items():
-                tempParams[key] = value
 
-            if not os.path.isfile('{basePath}{folder}{cvFolds}.json'.format(basePath=basePath, folder=tempParams['dataset'], cvFolds=cvSplit if cvSplit is not None else 'cvFolds')):
-                continue
-            with open('{basePath}{folder}{cvFolds}.json'.format(basePath=basePath, folder=tempParams['dataset'], cvFolds=cvSplit if cvSplit is not None else 'cvFolds'), 'r') as f:
+            with open('{}/splits/{}/{}.json'.format(basePath, target, inputArgs.cvSplit), 'r') as f:
                 cvFolds = json.load(f)
-
-            if cvFolds['1']['_test'] == 0:  # apparently we do not have any _test samples -> skip target
-                continue
 
             args = ParamsHoldingClass(tempParams)
 
-            if nrProcesses > 1:
-                jobs.append(pool.apply_async(cv, args=(cvFolds, args, hpModel, basePath)))
+            if inputArgs.nrProcesses > 1:
+                jobs.append(pool.apply_async(cv, args=(cvFolds, args)))
 
             else:
-                jobs.append((cv, (cvFolds, args, hpModel, basePath)))
+                jobs.append((cv, (cvFolds, args)))
 
     first = True
-    if nrProcesses > 1:
+    if inputArgs.nrProcesses > 1:
         for job in jobs:
             cvResults = job.get()
 
             if not first:
-                cvResults.to_csv('{f}cv_results.csv'.format(f=filename), header=False, index=False, mode='a')
+                cvResults.to_csv('{}/cv_results.csv'.format(outputDir), header=False, index=False, mode='a')
             else:
                 first = False
-                cvResults.to_csv('{f}cv_results.csv'.format(f=filename), header=True, index=False)
+                cvResults.to_csv('{}/cv_results.csv'.format(outputDir), header=True, index=False)
 
         pool.close()
 
@@ -225,22 +221,7 @@ def main(params,
             cvResults = fn(*args)
 
             if not first:
-                cvResults.to_csv('{f}cv_results.csv'.format(f=filename), header=False, index=False, mode='a')
+                cvResults.to_csv('{}/cv_results.csv'.format(outputDir), header=False, index=False, mode='a')
             else:
                 first = False
-                cvResults.to_csv('{f}cv_results.csv'.format(f=filename), header=True, index=False)
-
-
-if __name__ == '__main__':
-
-    with open('{basePath}targetDict.json'.format(basePath=BASEPATH), 'r') as f:
-        targetDict = json.load(f)
-
-    main(params,
-         'training/cv_20-80',
-         DistanceHyperpharmacophore,
-         nrProcesses=NR_PROCESSES,
-         basePath=BASEPATH,
-         targetDict=targetDict,
-         cvSplit='cvSplit_20-80'
-         )
+                cvResults.to_csv('{}/cv_results.csv'.format(outputDir), header=True, index=False)

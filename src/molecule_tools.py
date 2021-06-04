@@ -3,7 +3,7 @@ import CDPL.Chem as Chem
 import CDPL.Math as Math
 import CDPL.Pharm as Pharm
 from collections import Iterable
-from src.Pharmacophore_tools import get_pharmacophore
+from src.pharmacophore_tools import get_pharmacophore
 
 
 ALLOWED_ATOMS = [1, 6, 7, 8, 9, 15, 16, 17, 35, 53]

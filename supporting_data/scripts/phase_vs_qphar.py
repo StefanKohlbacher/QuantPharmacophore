@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
 import os
-import sys
 import json
-from Molecule_tools import SDFReader
-from ML_tools import analyse_regression
+from src.molecule_tools import SDFReader
+from src.ml_tools import analyse_regression
 from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules
 from src.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ import multiprocessing as mp
 # define some general parameters
 NR_PROCESSES = 12
 # BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
-BASEPATH = './supportding_data/phase_data/'
+BASEPATH = '../phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
 

@@ -6,7 +6,7 @@ import sys
 import json
 from src.hyperpharmacophore import LOOKUPKEYS, DistanceHyperpharmacophore
 from src.utils import AlignmentError
-from src.ML_tools import analyse_regression
+from src.ml_tools import analyse_regression
 
 
 REQUIREMENTS = {
@@ -503,7 +503,7 @@ def loadParams(path):
 
 
 def loadMolecules(path, multiconf=True):
-    from src.Molecule_tools import SDFReader
+    from src.molecule_tools import SDFReader
 
     r = SDFReader(path, multiconf=multiconf)
     molecules = [mol for mol in r]
@@ -515,7 +515,7 @@ def loadMolecules(path, multiconf=True):
 
 
 def saveMolecules(molecules, path, multiconf=True):
-    from src.Molecule_tools import mol_to_sdf
+    from src.molecule_tools import mol_to_sdf
 
     # add activity property if present, so we can access it later on by the known name
     for mol in molecules:

@@ -3,7 +3,7 @@ import pandas as pd
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
-from src.Pharmacophore_tools import get_pharmacophore
+from src.pharmacophore_tools import get_pharmacophore
 
 
 def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
@@ -83,7 +83,7 @@ def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, ret
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from src.ML_tools import analyse_regression
+    from src.ml_tools import analyse_regression
 
     numFeatures = []
     activities = []
@@ -119,8 +119,8 @@ def standardPropertiesBaseline(trainingSet, testSet, activityLookupKey, model=No
         from sklearn.linear_model import Ridge
 
         model = Ridge(fit_intercept=True)
-    from src.Molecule_tools import calculateStandardProperties
-    from src.ML_tools import analyse_regression
+    from src.molecule_tools import calculateStandardProperties
+    from src.ml_tools import analyse_regression
 
     # extract training properties
     standardProperties = calculateStandardProperties(trainingSet)

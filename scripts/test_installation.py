@@ -26,7 +26,7 @@ print('Current working directory', os.getcwd())
 
 try:
     from src.hyperpharmacophore import DistanceHyperpharmacophore
-    from src.Molecule_tools import SDFReader
+    from src.molecule_tools import SDFReader
     from src.modules import loadMolecules, splitSamplesActivities, DEFAULT_TRAINING_PARAMETERS
     from src.utils import selectMostRigidMolecule
 
