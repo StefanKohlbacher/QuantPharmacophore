@@ -36,7 +36,7 @@ def cv(folds, args):
     propsBaseline = {}
     predictions = {}
     for i, fold in folds.items():
-        trainingSet, testSet = [molecules[k] for k in fold['training']], [molecules[k] for k in fold['_test']]
+        trainingSet, testSet = [molecules[k] for k in fold['training']], [molecules[k] for k in fold['validation']]
         testActivities = [mol.getProperty(LOOKUPKEYS['activity']) for mol in testSet]
         predictions[i] = {'y_true': testActivities}
 
@@ -95,7 +95,7 @@ def cv(folds, args):
         # save predictions
         y_pred = pd.DataFrame(y_pred, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['_test']
+        y_pred['mol_indices'] = fold['validation']
         y_pred.to_csv('{}predictions_{i}.csv'.format(args.outputDir, i=i))
 
         mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # ensure we use the same ML algorithm for a fair comparison between datasets
@@ -104,14 +104,14 @@ def cv(folds, args):
         featuresBaseline[i], featurePredictions = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
         y_pred = pd.DataFrame(featurePredictions, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['_test']
+        y_pred['mol_indices'] = fold['validation']
         y_pred.to_csv('{}predictions_numFeaturesBaseline_{i}.csv'.format(args.outputDir, i=i))
 
         # physico-chemical properties baselines
         propsBaseline[i], propPredictions = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
         y_pred = pd.DataFrame(propPredictions, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['_test']
+        y_pred['mol_indices'] = fold['validation']
         y_pred.to_csv('{}predictions_propsBaseline_{i}.csv'.format(args.outputDir, i=i))
 
     if len(results) == 0:
@@ -159,7 +159,7 @@ def parseArgs():
 
 if __name__ == '__main__':
 
-    basePath = '../cross-validation'
+    basePath = '../cross_validation'
     filename = 'conformations.sdf'
 
     inputArgs = parseArgs()
@@ -171,20 +171,26 @@ if __name__ == '__main__':
         while os.path.isdir('{}/results/{}_{}'.format(basePath, outputName, i)):
             i += 1
     outputDir = '{}/results/{}_{}'.format(basePath, outputName, str(i))
-    os.makedirs(outputDir)
+    if not os.path.isdir(outputDir):
+        os.makedirs(outputDir)
 
     jobs = []
-    pool = mp.Pool(inputArgs.nrProcesses)
+
+    if inputArgs.nrProcesses > 1:
+        pool = mp.Pool(inputArgs.nrProcesses)
+
     for target in os.listdir('{}/splits/'.format(basePath)):
         for assay in os.listdir('{}/splits/{}/'.format(basePath, target)):
-            if not os.path.isfile('{}/splits/{}/{}.json'.format(basePath, target, inputArgs.cvSplit)):
+            if not os.path.isfile('{}/splits/{}/{}/{}.json'.format(basePath, target, assay, inputArgs.cvSplit)):
                 continue
 
             tempParams = {
                 'inputFile': '{}/targets/{}/{}/conformations.sdf'.format(basePath, target, assay),
-                'name': '{target}_{assay}'.format(target=inputArgs.name, assay=assay),
+                'name': '{target}_{assay}'.format(target=target, assay=assay),
                 'outputDir': '{}/{}/{}/'.format(outputDir, target, assay),
             }
+            if not os.path.isdir(tempParams['outputDir']):
+                os.makedirs(tempParams['outputDir'])
 
             if os.path.isfile('{}finished.log'.format(tempParams['outputDir'])):
                 continue
@@ -192,7 +198,7 @@ if __name__ == '__main__':
             for key, value in params.items():
                 tempParams[key] = value
 
-            with open('{}/splits/{}/{}.json'.format(basePath, target, inputArgs.cvSplit), 'r') as f:
+            with open('{}/splits/{}/{}/{}.json'.format(basePath, target, assay, inputArgs.cvSplit), 'r') as f:
                 cvFolds = json.load(f)
 
             args = ParamsHoldingClass(tempParams)
