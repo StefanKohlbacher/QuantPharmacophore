@@ -5,7 +5,7 @@ yum update -y
 yum install -y python3
 yum install -y wget
 alias python="python3"
-export PYTHONPATH="$PYTHONPATH:/qphar/CDPKit/Python"
+export PYTHONPATH="/qphar/CDPKit/Python:$PYTHONPATH"
 pip3 install -r requirements.txt
 
 # download and install cdpkit-installer
@@ -13,4 +13,4 @@ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download
 yes | sh cdpkit_installer.sh
 
 # test installation
-python test_installation.py
+python /qphar/scripts/test_installation.py
