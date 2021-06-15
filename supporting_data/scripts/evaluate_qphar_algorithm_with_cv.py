@@ -36,7 +36,7 @@ def cv(folds, args):
     propsBaseline = {}
     predictions = {}
     for i, fold in folds.items():
-        trainingSet, testSet = [molecules[k] for k in fold['training']], [molecules[k] for k in fold['validation']]
+        trainingSet, testSet = [molecules[k] for k in fold['training']], [molecules[k] for k in fold['test']]
         testActivities = [mol.getProperty(LOOKUPKEYS['activity']) for mol in testSet]
         predictions[i] = {'y_true': testActivities}
 
