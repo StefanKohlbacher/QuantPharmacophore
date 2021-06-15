@@ -152,4 +152,6 @@ _*
 supporting_data/phase_data
 supporting_data/cross_validation/CV20-80
 supporting_data/cross_validation/targets
+supporting_data/cross_validation/results/cv20-80_1
+supporting_data/cross_validation/results/cv80-20_1
 DA_Matthias
