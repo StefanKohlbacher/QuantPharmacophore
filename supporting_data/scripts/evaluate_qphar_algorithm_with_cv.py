@@ -95,7 +95,7 @@ def cv(folds, args):
         # save predictions
         y_pred = pd.DataFrame(y_pred, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['validation']
+        y_pred['mol_indices'] = fold['test']
         y_pred.to_csv('{}predictions_{i}.csv'.format(args.outputDir, i=i))
 
         mlModel = model._initMLModel(args.modelType, args.modelKwargs)  # ensure we use the same ML algorithm for a fair comparison between datasets
@@ -104,14 +104,14 @@ def cv(folds, args):
         featuresBaseline[i], featurePredictions = numFeaturesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
         y_pred = pd.DataFrame(featurePredictions, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['validation']
+        y_pred['mol_indices'] = fold['test']
         y_pred.to_csv('{}predictions_numFeaturesBaseline_{i}.csv'.format(args.outputDir, i=i))
 
         # physico-chemical properties baselines
         propsBaseline[i], propPredictions = standardPropertiesBaseline(trainingSet, testSet, LOOKUPKEYS['activity'], model=mlModel, returnPredictions=True)
         y_pred = pd.DataFrame(propPredictions, columns=['y_pred'])
         y_pred['y_true'] = testActivities
-        y_pred['mol_indices'] = fold['validation']
+        y_pred['mol_indices'] = fold['test']
         y_pred.to_csv('{}predictions_propsBaseline_{i}.csv'.format(args.outputDir, i=i))
 
     if len(results) == 0:
