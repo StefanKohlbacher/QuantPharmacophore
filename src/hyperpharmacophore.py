@@ -507,13 +507,14 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
     def onFeatureDeterminationEnd(self, samples, **kwargs):
         if self.distanceType == 'gaussian':  # create gaussian features so we can calculate distance easy
-            from ShapeAlignment import prepareForShapeAlignment
-
-            for f in self.cleanedHP:
-                featureSet = Pharm.FeatureSet()
-                featureSet.addFeature(f)
-                featureShape, featureShapeFunction = prepareForShapeAlignment(featureSet)
-                self.gaussianFeatures.append((featureShape, featureShapeFunction))
+            raise NotImplementedError
+            # from ShapeAlignment import prepareForShapeAlignment
+            #
+            # for f in self.cleanedHP:
+            #     featureSet = Pharm.FeatureSet()
+            #     featureSet.addFeature(f)
+            #     featureShape, featureShapeFunction = prepareForShapeAlignment(featureSet)
+            #     self.gaussianFeatures.append((featureShape, featureShapeFunction))
 
     def trainHPModel(self, aggregateEnvironment=False, **kwargs):
         """
