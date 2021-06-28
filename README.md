@@ -50,11 +50,11 @@ Check whether your data is appropriate to use for 3D-QSAR. The following criteri
 
 Execute the file 'checkTrainingData.py'. The parameters '-i', input SDF-file, and '-a', name of activity property, are required
 ```shell script
-python checkTrainingData.py -i /data/molecules_acetyl_CHEMBL945890.sdf -a pchembl_value
+python checkTrainingData.py -i /data/molecules.sdf -a pchembl_value
 ``` 
 This command will output that conformations are missing for all molecules in the file. Generate conformations and provide the new file. 
 ```shell script
-python checkTrainingData.py -i /data/acetyl_conformations.sdf -a pchembl_value
+python checkTrainingData.py -i /data/conformations.sdf -a pchembl_value
 ``` 
 Running it again with conformations will prompt that the data fulfills all requirements to be used for 3D-QSAR.
 
@@ -69,7 +69,7 @@ i.e.: 100 samples. validationFraction=0.1, testFraction=0.2 --> testSet = 20 sam
 trainingSet = 72 samples
 ```shell script
 mkdir /data/datasets
-python splitData.py -i /data/acetyl_conformations.sdf -a pchembl_value -o /data/datasets -validationFraction 0.1 -testFraction 0.2
+python splitData.py -i /data/conformations.sdf -a pchembl_value -o /data/datasets -validationFraction 0.1 -testFraction 0.2
 ``` 
 This will generated the files 'trainingSet.sdf', 'validationSet.sdf' and 'testSet.sdf' in the directory '/data/datasets/'. 
 These files are meant to be the input for the following scripts. 
