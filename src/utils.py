@@ -3,7 +3,7 @@ import pandas as pd
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
-from src.pharmacophore_tools import get_pharmacophore
+from src.pharmacophore_tools import getPharmacophore
 
 
 def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
@@ -89,7 +89,7 @@ def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, ret
     activities = []
     for sample in trainingSet:
         if isinstance(sample, Chem.BasicMolecule):
-            p = get_pharmacophore(sample)
+            p = getPharmacophore(sample)
             p.setProperty(activityLookupKey, sample.getProperty(activityLookupKey))
             sample = p
         activities.append(sample.getProperty(activityLookupKey))
@@ -99,7 +99,7 @@ def numFeaturesBaseline(trainingSet, testSet, activityLookupKey, model=None, ret
     trueActivities = []
     for sample in testSet:
         if isinstance(sample, Chem.BasicMolecule):
-            p = get_pharmacophore(sample)
+            p = getPharmacophore(sample)
             p.setProperty(activityLookupKey, sample.getProperty(activityLookupKey))
             sample = p
         trueActivities.append(sample.getProperty(activityLookupKey))

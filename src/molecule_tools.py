@@ -3,7 +3,7 @@ import CDPL.Chem as Chem
 import CDPL.Math as Math
 import CDPL.Pharm as Pharm
 from collections import Iterable
-from src.pharmacophore_tools import get_pharmacophore
+from src.pharmacophore_tools import getPharmacophore
 
 
 ALLOWED_ATOMS = [1, 6, 7, 8, 9, 15, 16, 17, 35, 53]
@@ -267,7 +267,7 @@ def calculateStandardProperties(mol):
     for m in mol:
         Chem.calcTopologicalDistanceMatrix(m, True)
 
-        p = get_pharmacophore(m)
+        p = getPharmacophore(m)
         hba, hbd = 0, 0
         for f in p:
             if Pharm.getType(f) == Pharm.FeatureType.H_BOND_ACCEPTOR:

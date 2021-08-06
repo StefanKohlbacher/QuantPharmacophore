@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import os
 import json
 from src.modules import loadMolecules, saveMolecules, addPropertyToSDFData
-from src.pharmacophore_tools import load_pml_pharmacophore
+from src.pharmacophore_tools import loadPharmacophore
 from src.hyperpharmacophore import DistanceHyperpharmacophore
 
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         samples = {}
         for f in files:
             # load pharmacophore and predict
-            pharmacophore = load_pml_pharmacophore('{}{}'.format(path, f))
+            pharmacophore = loadPharmacophore('{}{}'.format(path, f))
             predictions, scores = model.predict(pharmacophore, returnScores=True)
 
             # store predictions
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     elif args.i.endswith('pml'):  # single pharmacophore file
         # load pharmacophore and predict single sample
-        pharmacophore = load_pml_pharmacophore(args.i)
+        pharmacophore = loadPharmacophore(args.i)
         predictions, scores = model.predict(pharmacophore, returnScores=True)
 
         # save

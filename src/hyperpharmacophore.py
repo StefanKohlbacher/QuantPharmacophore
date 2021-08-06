@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from abc import abstractmethod
 import signal
 from src.utils import runTimeHandler, AlignmentError, getClosestFeature, getDistanceWeight, getGaussianWeight, calculateDistance, getFeatureFrequencyWeight
-from src.pharmacophore_tools import get_pharmacophore, save_pharmacophore, load_pml_pharmacophore
+from src.pharmacophore_tools import getPharmacophore, savePharmacophore, loadPharmacophore
 
 
 signal.signal(signal.SIGALRM, runTimeHandler)
@@ -185,12 +185,12 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
 
         for i in range(Chem.getNumConformations(m1)):
             Chem.applyConformation(m1, i)
-            p = get_pharmacophore(m1, fuzzy=self.fuzzy)
+            p = getPharmacophore(m1, fuzzy=self.fuzzy)
             self.aligner.addFeatures(p, True)
 
             for j in range(Chem.getNumConformations(m2)):
                 Chem.applyConformation(m2, j)
-                p2 = get_pharmacophore(m2, fuzzy=self.fuzzy)
+                p2 = getPharmacophore(m2, fuzzy=self.fuzzy)
                 self.aligner.addFeatures(p2, False)
 
                 while self.aligner.nextAlignment():
@@ -236,7 +236,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
 
             if p is not None:
                 ID = str(p.getObjectID())
-                save_pharmacophore(p, '{logPath}{ID}.pml'.format(logPath=self.logPath, ID=ID if name is None else name))
+                savePharmacophore(p, '{logPath}{ID}.pml'.format(logPath=self.logPath, ID=ID if name is None else name))
 
     def fit(self, samples, **kwargs):
         """
@@ -334,7 +334,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
 
         for j in range(Chem.getNumConformations(mol)):
             Chem.applyConformation(mol, j)
-            p = get_pharmacophore(mol, fuzzy=self.fuzzy)
+            p = getPharmacophore(mol, fuzzy=self.fuzzy)
             self.aligner.addFeatures(p, False)
 
             while self.aligner.nextAlignment():
@@ -946,12 +946,12 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         if not os.path.isdir(path):
             os.makedirs(path)
 
-        save_pharmacophore(self, '{}template.pml'.format(path))
+        savePharmacophore(self, '{}template.pml'.format(path))
         if not os.path.isdir('{}alignedSamples'.format(path)):
             os.mkdir('{}alignedSamples'.format(path))
         for i, alignedSample in enumerate(self.alignedSamples): 
-            save_pharmacophore(alignedSample[0], '{}alignedSamples/{}.pml'.format(path, str(i)))
-        save_pharmacophore(self.cleanedHP, '{}hpModel.pml'.format(path))
+            savePharmacophore(alignedSample[0], '{}alignedSamples/{}.pml'.format(path, str(i)))
+        savePharmacophore(self.cleanedHP, '{}hpModel.pml'.format(path))
         if isinstance(self.mlModel, Iterable) and self.modelType != 'randomForest': 
             os.mkdir('{}mlModel/'.format(path))
             for i, m in enumerate(self.mlModel):
@@ -993,7 +993,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         
         # load template
         if os.path.isfile('{}template.pml'.format(path)):
-            self.template = load_pml_pharmacophore('{}template.pml'.format(path))
+            self.template = loadPharmacophore('{}template.pml'.format(path))
             self.assign(self.template)
         else:
             print('Could not find template at file: template.pml')
@@ -1004,13 +1004,13 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         else:
             alignedSamples = []
             for f in os.listdir('{}alignedSamples'.format(path)):
-                s = load_pml_pharmacophore('{}alignedSamples/{}'.format(path, f))
+                s = loadPharmacophore('{}alignedSamples/{}'.format(path, f))
                 alignedSamples.append(s)
             self.alignedSamples = alignedSamples
         
         # load hp model
         if os.path.isfile('{}hpModel.pml'.format(path)): 
-            self.cleanedHP = load_pml_pharmacophore('{}hpModel.pml'.format(path))
+            self.cleanedHP = loadPharmacophore('{}hpModel.pml'.format(path))
             if os.path.isfile('{}featureProperties.json'.format(path)):
                 with open('{}featureProperties.json'.format(path), 'r') as f:
                     features = json.load(f)
