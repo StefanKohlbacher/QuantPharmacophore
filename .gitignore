@@ -130,24 +130,9 @@ dmypy.json
 
 # random folders
 .idea/
-testOutput_*/
-compare_against_phase_results*/
-gaba_a_case_study_*/
-gridSearch_*/
-dev/
 
 # log files / custom file
-screenlog.*
-train_old.py
-predict_old.py
-cross-validation.py
-trainingValidationTest.py
-trainingValidationTestParallelized.py
-cdpkit_docker_image.tar
-qphar_docker_container.tar
-qphar_docker_image.tar
 cdpkit_installer.sh
-compare_against_phase_parallel.py
 _*
 supporting_data/phase_data
 supporting_data/cross_validation/CV20-80

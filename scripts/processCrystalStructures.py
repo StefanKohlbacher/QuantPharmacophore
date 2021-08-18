@@ -1,11 +1,9 @@
-import numpy as np
 import CDPL.Chem as Chem
 import CDPL.Base as Base
-import CDPL.Pharm as Pharm
-import CDPL.Math as Math
 import CDPL.Biomol as Biomol
+import CDPL.Pharm as Pharm
 from argparse import ArgumentParser
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 import os
 
 from src.pharmacophore_tools import getPharmacophore, savePharmacophore, getInteractionPharmacophore
@@ -66,11 +64,11 @@ def readPDBFromFile(path: str) -> Chem.BasicMolecule:
     return protein
 
 
-def extractLigands(protein: Chem.BasicMolecule, ligandCodes: Set = None) -> Dict:
+def extractLigands(protein: Chem.BasicMolecule, ligandCodes: Set = None) -> Dict[str, Chem.BasicMolecule]:
     extractedLigands = {}
 
     atomsToRemove = set()
-    bondsToRemove = set()
+    # bondsToRemove = set()
     for i in range(protein.numAtoms):
         if i in atomsToRemove:
             continue
@@ -85,12 +83,11 @@ def extractLigands(protein: Chem.BasicMolecule, ligandCodes: Set = None) -> Dict
 
         elif Chem.isMetal(a):
             atomsToRemove.add(i)
-            metalBonds = a.getBonds()
-            for b in metalBonds:
-                bIndex = protein.getBondIndex(b)
-                if bIndex not in bondsToRemove:
-                    bondsToRemove.add(bIndex)
-            continue
+            # for b in a.bonds:
+            #     bIndex = protein.getBondIndex(b)
+            #     if bIndex not in bondsToRemove:
+            #         bondsToRemove.add(bIndex)
+            # continue
 
         else:  # atom must be some form of ligand, since it is none of the above -> careful with peptide ligands!!!
             ligandCode = Biomol.getResidueCode(a)
@@ -105,15 +102,15 @@ def extractLigands(protein: Chem.BasicMolecule, ligandCodes: Set = None) -> Dict
             continue
 
     atomsToRemove = list(atomsToRemove)
-    bondsToRemove = list(bondsToRemove)
+    # bondsToRemove = list(bondsToRemove)
     atomsToRemove.sort(reverse=True)
-    bondsToRemove.sort(reverse=True)
+    # bondsToRemove.sort(reverse=True)
 
     # remove atoms / bonds inplace
     for aIndex in atomsToRemove:
         protein.removeAtom(aIndex)
-    for bIndex in bondsToRemove:
-        protein.removeBond(bIndex)
+    # for bIndex in bondsToRemove:
+    #     protein.removeBond(bIndex)
 
     return extractedLigands
 
@@ -162,24 +159,33 @@ def processPDBStructure(protein: Chem.BasicMolecule,
                         ligandCodes: Set = None,
                         fuzzy: bool = True,
                         exclusionVolumes: bool = True
-                        ):
+                        ) -> Tuple[Chem.BasicMolecule,
+                                   Dict[str, Chem.BasicMolecule],
+                                   Dict[str, Pharm.BasicPharmacophore],
+                                   Dict[str, Pharm.BasicPharmacophore]]:
 
     # clean protein and extract ligands
     extractedLigands = extractLigands(protein, ligandCodes=ligandCodes)
 
     # check whether we still have a sufficiently large protein structure
     if protein.numAtoms < 150:
-        return
+        print('Protein has less than 150 Atoms after cleaning -> skipping')
+        return protein, extractedLigands, {}, {}
 
     interactionPharmacophores = {}
+    ligandPharmacophores = {}
     for ligandCode, ligand in extractedLigands.items():
         interactionPharmacophore = getInteractionPharmacophore(protein, ligand, fuzzy=fuzzy, exclusionVolumes=exclusionVolumes)
         interactionPharmacophores[ligandCode] = interactionPharmacophore
+        ligandPharmacophore = getPharmacophore(ligand, fuzzy=fuzzy)
+        ligandPharmacophores[ligandCode] = ligandPharmacophore
 
         if not os.path.isdir(outputFolder):
             os.mkdir(outputFolder)
         savePharmacophore(interactionPharmacophore, '{}/interaction-pharmacophore.pml'.format(outputFolder))
-        savePharmacophore(getPharmacophore(ligand, fuzzy=fuzzy), '{}/ligand-pharmacophore.pml'.format(outputFolder))
+        savePharmacophore(ligandPharmacophore, '{}/ligand-pharmacophore.pml'.format(outputFolder))
+
+    return protein, extractedLigands, ligandPharmacophores, interactionPharmacophores
 
 
 def main():

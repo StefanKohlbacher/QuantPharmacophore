@@ -64,6 +64,18 @@ def getInteractionPharmacophore(protein: Chem.BasicMolecule,
                                 fuzzy=False,
                                 ) -> Pharm.BasicPharmacophore:
     assert isinstance(protein, Chem.BasicMolecule) and isinstance(ligand, Chem.BasicMolecule)
+    # Chem.calcImplicitHydrogenCounts(protein, True)
+    # Chem.calcImplicitHydrogenCounts(ligand, True)
+    for a in protein.atoms:
+        if not Chem.hasImplicitHydrogenCount(a):
+            # print(protein.getAtomIndex(a), 'missing Implic H Count')
+            count = Chem.calcImplicitHydrogenCount(a, protein)
+            Chem.setImplicitHydrogenCount(a, count)
+    for a in ligand.atoms:
+        if not Chem.hasImplicitHydrogenCount(a):
+            # print(protein.getAtomIndex(a), 'missing Implic H Count')
+            count = Chem.calcImplicitHydrogenCount(a, ligand)
+            Chem.setImplicitHydrogenCount(a, count)
     Pharm.prepareForPharmacophoreGeneration(protein)
     Pharm.prepareForPharmacophoreGeneration(ligand)
 
