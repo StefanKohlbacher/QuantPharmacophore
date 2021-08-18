@@ -815,7 +815,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         clusters = {ft: [] for ft in FEATURE_TYPES.values()}
         alreadyInCluster = set()
 
-        for i in range(featureSet.numFeatures):
+        for i in range(featureSet.numFeatures):  # TODO: use clustering algorithm with max-cutoff
             if i in alreadyInCluster:
                 continue
 
