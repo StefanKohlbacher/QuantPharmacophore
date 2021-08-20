@@ -50,11 +50,13 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
         processedPDB = processPDBStructure(pdbMol, output, {ligandCode}, fuzzy=fuzzy, exclusionVolumes=xvols)
         cleanedProtein, extractedLigands, _, _ = processedPDB
 
-        Biomol.FilePDBMolecularGraphWriter('{}cleanedProtein.pdb'.format(output, pdbCode))
+        # w = Biomol.FilePDBMolecularGraphWriter('{}cleanedProtein.pdb'.format(output, pdbCode))
+        # w.write(cleanedProtein)
+        # w.close()
 
         for ligandCode, ligand in extractedLigands.items():
             sdb = Chem.StringDataBlock()
-            sdb.addEntry('> <Activity>', str(activity))
+            sdb.addEntry('<Activity>', str(activity))
             Chem.setStructureData(ligand, sdb)
             Chem.setName(ligand, ligandCode)
         mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output, pdbCode))
