@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as  pd
 from requests import request
@@ -35,9 +37,11 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
         os.makedirs(outputFolder)
 
     df = pd.read_excel(fileName)
+    activities = {}
     for i, row in df.iterrows():
         pdbCode, ligandCode, coFactorCodes = row['PDB_code'], row['ligand_code'], row['co_factors']
         activity = -np.log10(row['exp_activity']*10**-9)
+        activities[pdbCode] = {'yTrue': activity}
 
         pdbMol = downloadPDB(pdbCode)
         if pdbMol is None:
@@ -59,7 +63,11 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
             sdb.addEntry('<Activity>', str(activity))
             Chem.setStructureData(ligand, sdb)
             Chem.setName(ligand, ligandCode)
-        mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output, pdbCode))
+        mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output))
+
+    # save activities
+    with open('{}activities.json'.format(outputFolder), 'w') as f:
+        json.dump(activities, f, indent=2)
 
 
 if __name__ == '__main__':
