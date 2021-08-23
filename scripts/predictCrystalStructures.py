@@ -1,8 +1,6 @@
 from argparse import ArgumentParser
-import os
 import json
 
-import numpy as np
 import pandas as pd
 
 from src.hyperpharmacophore import DistanceHyperpharmacophore
