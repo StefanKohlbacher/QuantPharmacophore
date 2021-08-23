@@ -1,10 +1,11 @@
+import os.path
 from argparse import ArgumentParser
 import json
 
 import pandas as pd
 
 from src.hyperpharmacophore import DistanceHyperpharmacophore
-from src.pharmacophore_tools import loadPharmacophore
+from src.pharmacophore_tools import loadPharmacophore, savePharmacophore
 
 
 def loadQpharModel(path: str) -> DistanceHyperpharmacophore:
@@ -37,8 +38,8 @@ def main(targetFolder: str, modelPath: str):
         pharmacophores['ligand'].append(ligPharm)
 
     print('Predicting pharmacophores')
-    yPredInt, alignmentScoresInt = qpharModel.predict(pharmacophores['interaction'], returnScores=True)
-    yPredLig, alignmentScoresLig = qpharModel.predict(pharmacophores['ligand'], returnScores=True)
+    yPredInt, alignmentScoresInt, mlFeaturesInt, alignedPharmacophoresInt = qpharModel.predict(pharmacophores['interaction'], returnScores=True, returnFeatureData=True, returnAlignedPharmacophores=True)
+    yPredLig, alignmentScoresLig, mlFeaturesLig, alignedPharmacophoresLig = qpharModel.predict(pharmacophores['ligand'], returnScores=True, returnFeatureData=True, returnAlignedPharmacophores=True)
 
     results = pd.DataFrame(index=pdbCodes,
                            columns=['yTrue', 'yPredInt', 'yPredLig', 'alignmentScoreInt', 'alignmentScoreLig'])
@@ -49,8 +50,23 @@ def main(targetFolder: str, modelPath: str):
     results['alignmentScoreLig'] = alignmentScoresLig
 
     results.to_csv('{}predictions.csv'.format(targetFolder))
-    print('Finished')
     print('Saved results to: ', '{}predictions.csv'.format(targetFolder))
+
+    pd.DataFrame(mlFeaturesInt).to_csv('{}mlFeaturesInt.csv'.format(targetFolder))
+    pd.DataFrame(mlFeaturesLig).to_csv('{}mlFeaturesLig.csv'.format(targetFolder))
+
+    if not os.path.isdir('{}alignedInteractionPharmacophores/'.format(targetFolder)):
+        os.makedirs('{}alignedInteractionPharmacophores/'.format(targetFolder))
+    if not os.path.isdir('{}alignedLigandPharmacophores/'.format(targetFolder)):
+        os.makedirs('{}alignedLigandPharmacophores/'.format(targetFolder))
+
+    for pdbCode, pInt, pLig in zip(pdbCodes, alignedPharmacophoresInt, alignedPharmacophoresLig):
+        if pInt is not None:
+            savePharmacophore(pInt, '{}alignedInteractionPharmacophores/{}.pml'.format(targetFolder, pdbCode))
+        if pLig is not None:
+            savePharmacophore(pLig, '{}alignedLigandPharmacophores/{}.pml'.format(targetFolder, pdbCode))
+
+    print('Finished')
 
 
 if __name__ == '__main__':

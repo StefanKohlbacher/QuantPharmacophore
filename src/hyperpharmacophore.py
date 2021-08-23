@@ -937,7 +937,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
         outputValues = (y_pred)
         if returnScores:
-            outputValues = (*outputValues, scores)
+            outputValues = (y_pred, scores)
         if returnFeatureData:
             outputValues = (*outputValues, featureData)
         if returnAlignedPharmacophores:
