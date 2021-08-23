@@ -17,7 +17,7 @@ def main(targetFolder: str, modelPath: str):
     if not targetFolder.endswith('/'):
         targetFolder = '{}/'.format(targetFolder)
 
-    with open('{}activities.json', 'r') as f:
+    with open('{}activities.json'.format(targetFolder), 'r') as f:
         activities = json.load(f)
 
     qpharModel = loadQpharModel(modelPath)
@@ -29,13 +29,16 @@ def main(targetFolder: str, modelPath: str):
     }
     for pdbCode in pdbCodes:
         path = '{}{}/'.format(targetFolder, pdbCode)
+        print('Loading', '{}interaction-pharmacophore.pml'.format(path))
+        print('Loading', '{}ligand-pharmacophore.pml'.format(path))
         intPharm = loadPharmacophore('{}interaction-pharmacophore.pml'.format(path))
         ligPharm = loadPharmacophore('{}ligand-pharmacophore.pml'.format(path))
         pharmacophores['interaction'].append(intPharm)
         pharmacophores['ligand'].append(ligPharm)
 
-    yPredInt, alignmentScoresInt = qpharModel.predict(pharmacophores['interaction'])
-    yPredLig, alignmentScoresLig = qpharModel.predict(pharmacophores['ligand'])
+    print('Predicting pharmacophores')
+    yPredInt, alignmentScoresInt = qpharModel.predict(pharmacophores['interaction'], returnScores=True)
+    yPredLig, alignmentScoresLig = qpharModel.predict(pharmacophores['ligand'], returnScores=True)
 
     results = pd.DataFrame(index=pdbCodes,
                            columns=['yTrue', 'yPredInt', 'yPredLig', 'alignmentScoreInt', 'alignmentScoreLig'])
@@ -46,6 +49,8 @@ def main(targetFolder: str, modelPath: str):
     results['alignmentScoreLig'] = alignmentScoresLig
 
     results.to_csv('{}predictions.csv'.format(targetFolder))
+    print('Finished')
+    print('Saved results to: ', '{}predictions.csv'.format(targetFolder))
 
 
 if __name__ == '__main__':

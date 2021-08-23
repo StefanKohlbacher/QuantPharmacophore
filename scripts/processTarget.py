@@ -39,6 +39,7 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
     df = pd.read_excel(fileName)
     activities = {}
     for i, row in df.iterrows():
+        print('Processing {}: ...'.format(row['PDB_code']))
         pdbCode, ligandCode, coFactorCodes = row['PDB_code'], row['ligand_code'], row['co_factors']
         activity = -np.log10(row['exp_activity']*10**-9)
         activities[pdbCode] = {'yTrue': activity}

@@ -923,7 +923,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             y_pred = self.mlModel.predict(featureData).flatten()
 
         # handle unaligned samples -> set predictions to zero
-        y_pred = np.where((scores == 0), np.zeros(len(scores)), y_pred)
+        y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
         if returnScores:
             return y_pred, scores

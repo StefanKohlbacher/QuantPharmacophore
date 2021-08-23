@@ -166,6 +166,9 @@ def processPDBStructure(protein: Chem.BasicMolecule,
 
     # clean protein and extract ligands
     extractedLigands = extractLigands(protein, ligandCodes=ligandCodes)
+    if len(extractedLigands) == 0:
+        print('No ligand found with given ligand-codes: ', ligandCodes)
+        return protein, extractedLigands, {}, {}
 
     # check whether we still have a sufficiently large protein structure
     if protein.numAtoms < 150:
