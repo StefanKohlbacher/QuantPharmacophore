@@ -1,3 +1,5 @@
+from typing import List
+
 import CDPL.Pharm as Pharm
 import CDPL.Chem as Chem
 import CDPL.Base as Base
@@ -887,7 +889,13 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         for i in reversed(toRemove):
             self.cleanedHP.removeFeature(i)
 
-    def predict(self, samples, aggregateEnvironment=False, returnScores=False, **kwargs):
+    def predict(self,
+                samples,
+                aggregateEnvironment=False,
+                returnScores=False,
+                returnFeatureData=False,
+                returnAlignedPharmacophores=False,
+                **kwargs):
         if self.trainingDim == 0:
             if returnScores:
                 return np.array([0] * len(samples)), [0] * len(samples)
@@ -898,14 +906,16 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             samples = [samples]
 
         # get feature data from prediction samples
-        scores, featureData = [], []
+        scores, featureData, alignedPharmacophores = [], [], []
         for s in samples:
             try:
                 alignedPharmacophore, score = self.align(s, returnScore=True, **kwargs)
                 features = self.getFeatureData(alignedPharmacophore, aggregateEnvironment=aggregateEnvironment, **kwargs)
+                alignedPharmacophores.append(alignedPharmacophore)
             except AlignmentError:
                 score = 0
                 features = [0]*self.cleanedHP.numFeatures
+                alignedPharmacophores.append(None)
 
             featureData.append(features)
             scores.append(score)
@@ -925,10 +935,14 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         # handle unaligned samples -> set predictions to zero
         y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
+        outputValues = (y_pred)
         if returnScores:
-            return y_pred, scores
-        else:
-            return y_pred
+            outputValues = (*outputValues, scores)
+        if returnFeatureData:
+            outputValues = (*outputValues, featureData)
+        if returnAlignedPharmacophores:
+            outputValues = (*outputValues, alignedPharmacophores)
+        return outputValues
 
     def save(self, path, **kwargs):
         """
