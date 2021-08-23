@@ -4,12 +4,11 @@ import numpy as np
 import pandas as  pd
 from requests import request
 import CDPL.Chem as Chem
-import CDPL.Biomol as Biomol
 import CDPL.Base as Base
 from argparse import ArgumentParser
 import os
 
-from scripts.processCrystalStructures import readPDBFromStream, processPDBStructure
+from crystalStructureCaseStudy.processCrystalStructures import readPDBFromStream, processPDBStructure
 from src.molecule_tools import mol_to_sdf
 
 
