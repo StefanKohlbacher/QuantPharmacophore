@@ -47,6 +47,7 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
         pdbMol = downloadPDB(pdbCode)
         if pdbMol is None:
             print('Skipping {} due to missing pdb structure'.format(pdbCode))
+            activities.pop(pdbCode)
 
         output = '{}{}/'.format(outputFolder, pdbCode)
         if not os.path.isdir(output):
@@ -68,6 +69,7 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
             mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output))
         else:
             os.removedirs(output)
+            activities.pop(pdbCode)
 
     # save activities
     with open('{}activities.json'.format(outputFolder), 'w') as f:
