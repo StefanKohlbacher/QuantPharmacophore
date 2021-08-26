@@ -5,6 +5,7 @@ import pandas as  pd
 from requests import request
 import CDPL.Chem as Chem
 import CDPL.Base as Base
+import CDPL.Biomol as Biomol
 from argparse import ArgumentParser
 import os
 
@@ -58,12 +59,15 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
         # w.write(cleanedProtein)
         # w.close()
 
-        for ligandCode, ligand in extractedLigands.items():
-            sdb = Chem.StringDataBlock()
-            sdb.addEntry('<Activity>', str(activity))
-            Chem.setStructureData(ligand, sdb)
-            Chem.setName(ligand, ligandCode)
-        mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output))
+        if len(extractedLigands) > 0:
+            for ligandCode, ligand in extractedLigands.items():
+                sdb = Chem.StringDataBlock()
+                sdb.addEntry('<Activity>', str(activity))
+                Chem.setStructureData(ligand, sdb)
+                Chem.setName(ligand, ligandCode)
+            mol_to_sdf([l for l in extractedLigands.values()], '{}ligands.sdf'.format(output))
+        else:
+            os.removedirs(output)
 
     # save activities
     with open('{}activities.json'.format(outputFolder), 'w') as f:
