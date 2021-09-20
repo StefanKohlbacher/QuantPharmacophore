@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
 import CDPL.Chem as Chem
@@ -150,7 +152,7 @@ def runTimeHandler(signum, frame):
     raise TimeoutError(message)
 
 
-def selectMostRigidMolecule(molecules, returnIndices=False):
+def selectMostRigidMolecule(molecules, returnIndices=False) -> [Chem.BasicMolecule, List[Chem.BasicMolecule]]:
     """
     Determine most rigid / least flexible molecule based on number of single non-hydrogen bonds in a molecule.
     :param molecules:

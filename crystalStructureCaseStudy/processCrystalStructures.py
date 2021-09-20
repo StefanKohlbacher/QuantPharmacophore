@@ -90,7 +90,7 @@ def extractLigands(protein: Chem.BasicMolecule, ligandCodes: Set = None) -> Dict
             # continue
 
         else:  # atom must be some form of ligand, since it is none of the above -> careful with peptide ligands!!!
-            ligandCode = Biomol.getResidueCode(a)
+            ligandCode = str(Biomol.getResidueCode(a))
             ligandAtomIndices = findLigand(protein, ligandCode)
             if isLigand(a, ligandCodes):
                 extractedLigands[ligandCode] = createLigandFromAtoms(protein, [protein.getAtom(aIndex) for aIndex in ligandAtomIndices])

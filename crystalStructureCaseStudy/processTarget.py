@@ -5,7 +5,6 @@ import pandas as  pd
 from requests import request
 import CDPL.Chem as Chem
 import CDPL.Base as Base
-import CDPL.Biomol as Biomol
 from argparse import ArgumentParser
 import os
 
@@ -53,7 +52,7 @@ def processTargetFile(fileName: str, outputFolder: str, fuzzy: bool = True, xvol
         if not os.path.isdir(output):
             os.makedirs(output)
 
-        processedPDB = processPDBStructure(pdbMol, output, {ligandCode}, fuzzy=fuzzy, exclusionVolumes=xvols)
+        processedPDB = processPDBStructure(pdbMol, output, {str(ligandCode)}, fuzzy=fuzzy, exclusionVolumes=xvols)
         cleanedProtein, extractedLigands, _, _ = processedPDB
 
         # w = Biomol.FilePDBMolecularGraphWriter('{}cleanedProtein.pdb'.format(output, pdbCode))
