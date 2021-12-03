@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import json
 import multiprocessing as mp
 from argparse import ArgumentParser
-from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules, LOOKUPKEYS
+from src.qphar import Qphar, assignActivitiesToMolecules, LOOKUPKEYS
 from src.ml_tools import analyse_regression, aggregateRegressionCrossValidationResults
 from src.molecule_tools import SDFReader
 from src.utils import AlignmentError, extractActivityFromMolecule, selectMostRigidMolecule, make_activity_plot, \
@@ -48,7 +48,7 @@ def cv(folds, args):
             template, remainingMolecules = selectMostRigidMolecule(trainingSet)
             for j in range(len(remainingMolecules)):
                 try:
-                    model = DistanceHyperpharmacophore([template, remainingMolecules[j]], **{k: v for k, v in args if k != 'logPath'})
+                    model = Qphar([template, remainingMolecules[j]], **{k: v for k, v in args if k != 'logPath'})
                 except AlignmentError:
                     continue
 
@@ -62,7 +62,7 @@ def cv(folds, args):
         else:
             for j in range(len(trainingSet)-1):
                 try:
-                    model = DistanceHyperpharmacophore(trainingSet[j: j+2], **{k: v for k, v in args if k != 'logPath'})
+                    model = Qphar(trainingSet[j: j + 2], **{k: v for k, v in args if k != 'logPath'})
                 except AlignmentError:
                     continue
                 model.fit([trainingSet[k] for k in range(len(trainingSet)) if k not in [j, j+1]],

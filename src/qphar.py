@@ -40,7 +40,7 @@ def assignActivitiesToPharmacophores(pharmacophores, activities):
             feature.setProperty(LOOKUPKEYS['nrOfFeatures'], 1)
 
 
-class HyperPharmacophore(Pharm.BasicPharmacophore):
+class BasicQphar(Pharm.BasicPharmacophore):
 
     """
     This class is an extended version of the inital Hyperpharmacophore class. Changes are
@@ -62,7 +62,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
                  fuzzy=True,
                  threshold=1.5,
                  **kwargs):
-        super(HyperPharmacophore, self).__init__()
+        super(BasicQphar, self).__init__()
         self.template = template
         self.modelType = modelType
         self.modelKwargs = {} if modelKwargs is None else modelKwargs
@@ -478,7 +478,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         raise NotImplementedError
 
 
-class DistanceHyperpharmacophore(HyperPharmacophore):
+class Qphar(BasicQphar):
 
     """
     This is basically just a reimplementation of the 'classical' Hyperpharmacophore from a previous version. Instead
@@ -498,7 +498,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                  addFeatureFrequencyWeight=False,
                  **kwargs
                  ):
-        super(DistanceHyperpharmacophore, self).__init__(template, weightType=weightType, **kwargs)
+        super(Qphar, self).__init__(template, weightType=weightType, **kwargs)
         self.addFeatureFrequencyWeight = addFeatureFrequencyWeight
         self.distanceType = distanceType
         self.maxDistance = maxDistance
@@ -854,7 +854,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         :param kwargs:
         :return:
         """
-        super(DistanceHyperpharmacophore, self).cleanFeatures(**kwargs)
+        super(Qphar, self).cleanFeatures(**kwargs)
 
         # determine min and max value of activity.
         toRemove = []

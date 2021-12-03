@@ -4,7 +4,7 @@ import os
 import json
 from src.molecule_tools import SDFReader
 from src.ml_tools import analyse_regression
-from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules
+from src.qphar import Qphar, assignActivitiesToMolecules
 from src.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 import matplotlib.pyplot as plt
 import CDPL.Chem as Chem
@@ -74,8 +74,8 @@ def main(args):
     trainingSet.extend(remainingMolecules)
     for j in range(len(remainingMolecules)):
         try:
-            model = DistanceHyperpharmacophore([template, remainingMolecules[j]],
-                                               **{k: v for k, v in args if k != 'logPath'})
+            model = Qphar([template, remainingMolecules[j]],
+                          **{k: v for k, v in args if k != 'logPath'})
         except AlignmentError:
             continue
 
