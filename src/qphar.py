@@ -1,3 +1,5 @@
+from typing import List, Union, Tuple
+
 import CDPL.Pharm as Pharm
 import CDPL.Chem as Chem
 import CDPL.Base as Base
@@ -888,12 +890,12 @@ class Qphar(BasicQphar):
             self.cleanedHP.removeFeature(i)
 
     def predict(self,
-                samples,
-                aggregateEnvironment=False,
-                returnScores=False,
-                returnFeatureData=False,
-                returnAlignedPharmacophores=False,
-                **kwargs):
+                samples: Union[List[Union[Chem.BasicMolecule, Pharm.BasicPharmacophore]], Chem.BasicMolecule, Pharm.BasicPharmacophore],
+                aggregateEnvironment: bool = False,
+                returnScores: bool = False,
+                returnFeatureData: bool = False,
+                returnAlignedPharmacophores: bool = False,
+                **kwargs) -> Union[np.array, Tuple[np.arry, np.array], Tuple[np.array, np.array, np.array], Tuple[np.array, np.array, np.array, List[Pharm.BasicPharmacophore]]]:
         if self.trainingDim == 0:
             if returnScores:
                 return np.array([0] * len(samples)), [0] * len(samples)
@@ -933,9 +935,9 @@ class Qphar(BasicQphar):
         # handle unaligned samples -> set predictions to zero
         y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
-        outputValues = (y_pred)
+        outputValues = (y_pred, )
         if returnScores:
-            outputValues = (y_pred, scores)
+            outputValues = (*outputValues, scores)
         if returnFeatureData:
             outputValues = (*outputValues, featureData)
         if returnAlignedPharmacophores:
