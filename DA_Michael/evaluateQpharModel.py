@@ -8,8 +8,8 @@ import os
 import numpy as np
 
 from src.qphar import Qphar, LOOKUPKEYS
-from makeTrainTestData import loadMolecules
-from trainQphar import scoreQpharModelByR2
+from DA_Michael.makeTrainTestData import loadMolecules
+from DA_Michael.trainQphar import scoreQpharModelByR2
 
 
 def parseArgs():

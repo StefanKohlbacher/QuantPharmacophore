@@ -18,7 +18,7 @@ import CDPL.Chem as Chem
 
 from src.qphar import Qphar, LOOKUPKEYS
 from src.utils import selectMostRigidMolecule
-from makeTrainTestData import loadMolecules
+from DA_Michael.makeTrainTestData import loadMolecules
 
 
 SEARCH_PARAMETERS = {
