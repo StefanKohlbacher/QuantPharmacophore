@@ -3,7 +3,7 @@ import os
 import json
 from src.modules import loadMolecules, saveMolecules, addPropertyToSDFData
 from src.pharmacophore_tools import loadPharmacophore
-from src.hyperpharmacophore import DistanceHyperpharmacophore
+from src.qphar import Qphar
 
 
 if __name__ == '__main__':
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # load model
-    model = DistanceHyperpharmacophore()
+    model = Qphar()
     model.load(args.m)
 
     # load samples

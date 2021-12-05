@@ -4,7 +4,7 @@ import os
 import json
 from src.molecule_tools import SDFReader
 from src.ml_tools import analyse_regression
-from src.hyperpharmacophore import DistanceHyperpharmacophore, assignActivitiesToMolecules
+from src.qphar import Qphar, assignActivitiesToMolecules
 from src.utils import extractActivityFromMolecule, AlignmentError, make_activity_plot, selectMostRigidMolecule, ParamsHoldingClass
 import matplotlib.pyplot as plt
 import CDPL.Chem as Chem
@@ -13,9 +13,9 @@ import multiprocessing as mp
 
 
 # define some general parameters
-NR_PROCESSES = 12
+NR_PROCESSES = 1
 # BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
-BASEPATH = '../phase_data/'
+BASEPATH = './supporting_data/phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
 
@@ -74,8 +74,8 @@ def main(args):
     trainingSet.extend(remainingMolecules)
     for j in range(len(remainingMolecules)):
         try:
-            model = DistanceHyperpharmacophore([template, remainingMolecules[j]],
-                                               **{k: v for k, v in args if k != 'logPath'})
+            model = Qphar([template, remainingMolecules[j]],
+                          **{k: v for k, v in args if k != 'logPath'})
         except AlignmentError:
             continue
 
@@ -154,7 +154,7 @@ def run_not_parallel(jobs):
 if __name__ == '__main__':
 
     # determine output path
-    outputPath = './supportding_data/comparison_against_phase'
+    outputPath = './supporting_data/comparison_against_phase'
     i = 1
     while os.path.isdir('{f}_{i}/'.format(f=outputPath, i=str(i))):
         i += 1
