@@ -13,8 +13,7 @@ import multiprocessing as mp
 
 
 # define some general parameters
-NR_PROCESSES = 1
-# BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
+NR_PROCESSES = 12
 BASEPATH = './supporting_data/phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
@@ -34,7 +33,6 @@ def main(args):
     print('Running', args.__dict__)
 
     # load data
-    # r = SDFReader('{b}Debnath_2002_compounds_conformations.sdf'.format(b=BASEPATH))
     r = SDFReader('{b}conformations.sdf'.format(b=BASEPATH))
     molecules, activities = [], []
     for mol in r:
