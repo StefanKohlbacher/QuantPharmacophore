@@ -5,7 +5,56 @@ import pandas as pd
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from src.pharmacophore_tools import getPharmacophore
+
+
+COLOR_MAPPING = {
+    Pharm.FeatureType.AROMATIC: 'blue',
+    Pharm.FeatureType.HYDROPHOBIC: 'yellow',
+    Pharm.FeatureType.H_BOND_ACCEPTOR: 'red',
+    Pharm.FeatureType.H_BOND_DONOR: 'green',
+    Pharm.FeatureType.NEG_IONIZABLE: 'black',
+    Pharm.FeatureType.POS_IONIZABLE: 'orange',
+    Pharm.FeatureType.X_VOLUME: 'grey'
+}
+
+
+def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore) -> None:
+    points = {}  # maps index to a dict of x, y, z coordinates, color, and feature type
+    for i, feature in enumerate(pharmacophore):
+        coords = Chem.get3DCoordinates(feature).toArray()
+        featureType = Pharm.getType(feature)
+        points[i] = {
+            'x': coords[0],
+            'y': coords[1],
+            'z': coords[2],
+            'color': COLOR_MAPPING[featureType],
+            'featureType': featureType
+        }
+    points = pd.DataFrame.from_dict(points, orient='index')
+
+    # creating figure
+    fig = plt.figure()
+    ax = Axes3D(fig)
+
+    for ft, color in COLOR_MAPPING.items():
+        selectedPoints = points[points['featureType'] == ft]
+        ax.scatter(selectedPoints.x.values,
+                   selectedPoints.y.values,
+                   selectedPoints.z.values,
+                   color=color,
+                   s=100
+                   )
+
+    # setting title and labels
+    ax.set_title("3D plot")
+    ax.set_xlabel('x-axis')
+    ax.set_ylabel('y-axis')
+    ax.set_zlabel('z-axis')
+
+    # displaying the plot
+    plt.show()
 
 
 def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
