@@ -13,9 +13,9 @@ import multiprocessing as mp
 
 
 # define some general parameters
-NR_PROCESSES = 12
+NR_PROCESSES = 1
 # BASEPATH = '../Data/Evaluation_datasets/Phase_paper/Debnath_2002/'  # adjust path to your local path
-BASEPATH = '../phase_data/'
+BASEPATH = './supporting_data/phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
 
