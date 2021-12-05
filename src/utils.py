@@ -225,7 +225,7 @@ def selectMostRigidMolecule(molecules: List[Chem.BasicMolecule],
 
     try:
         mostRigidMolecule = np.argmin(numberOfFlexibleBondsPerMolecule)
-    except IndexError:
+    except ValueError:
         mostRigidMolecule = 0
     if returnIndices:
         return mostRigidMolecule, [k for k in range(len(molecules)) if k != mostRigidMolecule]
