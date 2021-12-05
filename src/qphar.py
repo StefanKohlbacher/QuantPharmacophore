@@ -384,6 +384,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.aligner.addFeatures(self, True)
         self.aligner.addFeatures(p, False)
         bestScore = 0
+        bestTfMatrix = Math.Matrix4D()
         while self.aligner.nextAlignment():
             tfMatrix = self.aligner.getTransform()
             score = self.scorer(self, p, tfMatrix)
@@ -392,6 +393,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
                 if score > bestScore:
                     Pharm.transform3DCoordinates(p, tfMatrix)
                     bestScore = score
+                    bestTfMatrix.assign(tfMatrix)
 
         self.aligner.clearEntities(False)
         self.aligner.clearEntities(True)
@@ -399,6 +401,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         if bestScore == 0:
             raise AlignmentError
 
+        Pharm.transform3DCoordinates(p, bestTfMatrix)
         if returnScore:
             return p, bestScore
         else:

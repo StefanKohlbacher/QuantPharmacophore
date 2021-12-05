@@ -20,7 +20,7 @@ COLOR_MAPPING = {
 }
 
 
-def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore) -> None:
+def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore, color: bool = True) -> None:
     points = {}  # maps index to a dict of x, y, z coordinates, color, and feature type
     for i, feature in enumerate(pharmacophore):
         coords = Chem.get3DCoordinates(feature).toArray()
@@ -38,12 +38,12 @@ def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore) -> None:
     fig = plt.figure()
     ax = Axes3D(fig)
 
-    for ft, color in COLOR_MAPPING.items():
+    for ft, c in COLOR_MAPPING.items():
         selectedPoints = points[points['featureType'] == ft]
         ax.scatter(selectedPoints.x.values,
                    selectedPoints.y.values,
                    selectedPoints.z.values,
-                   color=color,
+                   color=c if color else 'grey',
                    s=100
                    )
 
