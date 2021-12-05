@@ -154,7 +154,7 @@ def run_not_parallel(jobs):
 if __name__ == '__main__':
 
     # determine output path
-    outputPath = './supportding_data/comparison_against_phase'
+    outputPath = './supporting_data/comparison_against_phase'
     i = 1
     while os.path.isdir('{f}_{i}/'.format(f=outputPath, i=str(i))):
         i += 1
