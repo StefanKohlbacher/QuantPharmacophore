@@ -95,7 +95,7 @@ def main(args):
     model = tempModels[modelPerformance.index.values[0]]
     predictions = predictions[modelPerformance.index.values[0]]
     trainingPredictions = trainingPredictions[modelPerformance.index.values[0]]
-    modelPerformance = modelPerformance.iloc[0]
+    # modelPerformance = modelPerformance.iloc[0]
 
     # save results
     key = args.i
@@ -108,7 +108,7 @@ def main(args):
         os.makedirs('{}/model_{}/'.format(outputPath, key))
     model.save('{}/model_{}/'.format(outputPath, key))
 
-    preds = pd.DataFrame(predictions, columns=['y_pred'])
+    preds = pd.DataFrame(predictions.reshape(-1, 1), columns=['y_pred'])
     preds['y_true'] = testActivities
     preds['mol_indices'] = testIndices
     preds.to_csv('{}/predictions_{}.csv'.format(outputPath, key))
