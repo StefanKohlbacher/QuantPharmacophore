@@ -7,7 +7,6 @@ import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from src.pharmacophore_tools import getPharmacophore
-from sklearn.metrics import mean_squared_error, r2_score
 
 
 COLOR_MAPPING = {
@@ -93,7 +92,13 @@ def calculateDistance(coords1, coords2):
     return np.linalg.norm(coords2-coords1, ord=2)
 
 
-def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted values'):
+def make_activity_plot(y_true: np.array,
+                       y_pred: np.array,
+                       xLabel: str = 'true values',
+                       yLabel: str = 'predicted values',
+                       r2Score: float = None,
+                       rmse: float = None,
+                       ):
 
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.scatter(y_true.flatten(), y_pred.flatten())
@@ -104,10 +109,11 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     #add parameters in graph
     high_annotate_lim= high_activity_lim -0.5
     low_annotate_lim = low_activity_lim + 0.2
-    ax.annotate("R-squared = {:.3f}\nRMSE = {}".format(r2_score(y_true, y_pred),mean_squared_error(y_true,y_pred,squared=False)), (low_annotate_lim, high_annotate_lim))
-    
-    limits = (low_activity_lim, high_activity_lim)
 
+    r2Score = r2Score if r2Score is not None else ''
+    rmse = rmse if rmse is not None else ''
+    ax.annotate("R-squared = {}\nRMSE = {}".format(r2Score, rmse), (low_annotate_lim, high_annotate_lim))
+    
     # add regression line
     m, b = np.polyfit(y_true.flatten(), y_pred.flatten(), 1)
     x = np.arange(low_activity_lim, high_activity_lim+1)
