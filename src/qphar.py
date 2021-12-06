@@ -938,7 +938,7 @@ class Qphar(BasicQphar):
         # handle unaligned samples -> set predictions to zero
         y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
-        outputValues = (y_pred, )
+        outputValues = (y_pred)
         if returnScores:
             outputValues = (*outputValues, scores)
         if returnFeatureData:
