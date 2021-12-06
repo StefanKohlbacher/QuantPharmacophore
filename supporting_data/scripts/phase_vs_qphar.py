@@ -167,8 +167,9 @@ if __name__ == '__main__':
 
     searchParams = {
         'weightType': ['distance', 'nrOfFeatures', None],
-        'modelType': ['randomForest', 'ridge', 'pca_ridge', 'pls', 'pca_lr'],
-        'threshold': [1, 1.5, 2],
+        # 'modelType': ['randomForest', 'ridge', 'pca_ridge', 'pls', 'pca_lr'],
+        'modelType': ['randomForest'],
+        'threshold': [1, 1.5, 2, 2.5],
     }
 
     modelParams = {
@@ -182,8 +183,8 @@ if __name__ == '__main__':
     }
 
     rfParams = {
-        'n_estimators': [10, 15, 20],
-        'max_depth': [2, 3]
+        'n_estimators': [10, 15, 20, 30, 50],
+        'max_depth': [2, 3, None]
     }
 
     keys = sorted(searchParams.keys())

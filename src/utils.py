@@ -20,6 +20,41 @@ COLOR_MAPPING = {
 }
 
 
+def visualize3DPoints(x: Union[List[float], np.array],
+                      y: Union[List[float], np.array],
+                      z: Union[List[float], np.array],
+                      colors: Union[List[str], np.array] = None,
+                      sizes: Union[List[int], np.array] = None,
+                      xLimits: Tuple[int, int] = None,
+                      yLimits: Tuple[int, int] = None,
+                      zLimits: Tuple[int, int] = None
+                      ) -> None:
+    if len(x) != len(y) != len(z):
+        raise ValueError('X, Y, Z coordinates for points must be of same length, but {}, {}, {} was given'.format(len(x), len(x), len(z)))
+
+    # creating figure
+    fig = plt.figure()
+    ax = Axes3D(fig)
+
+    ax.scatter(x, y, z, color=colors, s=sizes)
+
+    # setting title and labels
+    ax.set_title("3D plot")
+    ax.set_xlabel('x-axis')
+    ax.set_ylabel('y-axis')
+    ax.set_zlabel('z-axis')
+
+    if xLimits is not None:
+        ax.axes.set_xlim3d(left=xLimits[0], right=xLimits[1])
+    if yLimits is not None:
+        ax.axes.set_ylim3d(bottom=yLimits[0], top=yLimits[1])
+    if zLimits is not None:
+        ax.axes.set_zlim3d(bottom=zLimits[0], top=zLimits[1])
+
+    # displaying the plot
+    plt.show()
+
+
 def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore, color: bool = True) -> None:
     points = {}  # maps index to a dict of x, y, z coordinates, color, and feature type
     for i, feature in enumerate(pharmacophore):
@@ -29,32 +64,12 @@ def visualize3DPharmacophore(pharmacophore: Pharm.BasicPharmacophore, color: boo
             'x': coords[0],
             'y': coords[1],
             'z': coords[2],
-            'color': COLOR_MAPPING[featureType],
+            'color': COLOR_MAPPING[featureType] if color else 'grey',
             'featureType': featureType
         }
     points = pd.DataFrame.from_dict(points, orient='index')
 
-    # creating figure
-    fig = plt.figure()
-    ax = Axes3D(fig)
-
-    for ft, c in COLOR_MAPPING.items():
-        selectedPoints = points[points['featureType'] == ft]
-        ax.scatter(selectedPoints.x.values,
-                   selectedPoints.y.values,
-                   selectedPoints.z.values,
-                   color=c if color else 'grey',
-                   s=100
-                   )
-
-    # setting title and labels
-    ax.set_title("3D plot")
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
-
-    # displaying the plot
-    plt.show()
+    visualize3DPoints(points.x.values, points.y.values, points.z.values, points.color.values, sizes=100)
 
 
 def getClosestFeature(queryFeature, referenceFeatures, **kwargs):
@@ -106,12 +121,12 @@ def make_activity_plot(y_true: np.array,
     high_activity_lim = np.ceil(max(max(y_true), max(y_pred)))
     low_activity_lim = np.floor(min(min(y_true), min(y_pred)))
     limits = (high_activity_lim, low_activity_lim)
-    #add parameters in graph
-    high_annotate_lim= high_activity_lim -0.5
-    low_annotate_lim = low_activity_lim + 0.2
 
+    # display metrics if available
     r2Score = r2Score if r2Score is not None else ''
     rmse = rmse if rmse is not None else ''
+    high_annotate_lim = high_activity_lim - 0.5
+    low_annotate_lim = low_activity_lim + 0.2
     ax.annotate("R-squared = {}\nRMSE = {}".format(r2Score, rmse), (low_annotate_lim, high_annotate_lim))
     
     # add regression line
