@@ -7,6 +7,7 @@ import CDPL.Pharm as Pharm
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from src.pharmacophore_tools import getPharmacophore
+from sklearn.metrics import mean_squared_error, r2_score
 
 
 COLOR_MAPPING = {
@@ -100,7 +101,12 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     high_activity_lim = np.ceil(max(max(y_true), max(y_pred)))
     low_activity_lim = np.floor(min(min(y_true), min(y_pred)))
     limits = (high_activity_lim, low_activity_lim)
-    # limits = (low_activity_lim, high_activity_lim)
+    #add parameters in graph
+    high_annotate_lim= high_activity_lim -0.5
+    low_annotate_lim = low_activity_lim + 0.2
+    ax.annotate("R-squared = {:.3f}\nRMSE = {}".format(r2_score(y_true, y_pred),mean_squared_error(y_true,y_pred,squared=False)), (low_annotate_lim, high_annotate_lim))
+    
+    limits = (low_activity_lim, high_activity_lim)
 
     # add regression line
     m, b = np.polyfit(y_true.flatten(), y_pred.flatten(), 1)
