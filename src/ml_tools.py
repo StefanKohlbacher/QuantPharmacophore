@@ -44,7 +44,7 @@ class PCAPredictor(PCA):
         return transformed
 
 
-def analyse_regression(y_true: np.ndarray, y_pred: np.ndarray, weights=None) -> dict:
+def analyse_regression(y_true: np.ndarray, y_pred: np.ndarray, weights=None) -> Dict[str, Union[int, float]]:
     if not isinstance(y_true, np.ndarray):
         y_true = np.array(y_true)
     if not isinstance(y_pred, np.ndarray):

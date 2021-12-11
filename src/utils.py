@@ -43,7 +43,11 @@ def calculateDistance(coords1, coords2):
     return np.linalg.norm(coords2-coords1, ord=2)
 
 
-def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted values'):
+def make_activity_plot(y_true: np.array,
+                       y_pred: np.array,
+                       xLabel: str = None,
+                       yLabel: str = None,
+                       ) -> Tuple[plt.Figure, plt.Axes]:
 
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.scatter(y_true.flatten(), y_pred.flatten())
@@ -61,8 +65,8 @@ def make_activity_plot(y_true, y_pred, xLabel='true values', yLabel='predicted v
     # set limits on plot
     ax.set_xlim(limits)
     ax.set_ylim(limits)
-    ax.set_xlabel(xLabel)
-    ax.set_ylabel(yLabel)
+    ax.set_xlabel(xLabel if xLabel is not None else 'true values')
+    ax.set_ylabel(yLabel if yLabel is not None else 'predicted values')
 
     return fig, ax
 

@@ -80,7 +80,7 @@ def combineParameters(searchParams: Dict[str, List[Union[str, float, int]]]) -> 
     return combinedParameters
 
 
-def makeCv(parameters: [Dict[str, Union[str, int, float]]],
+def makeCv(parameters: Dict[str, Union[str, int, float]],
            molecules: List[Chem.BasicMolecule],
            folds: Dict[int, Dict[str, List[int]]],
            ) -> Tuple[float, float]:
