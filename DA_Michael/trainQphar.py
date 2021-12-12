@@ -52,13 +52,13 @@ def scoreQpharModelByR2(qpharModel: Qphar, testSet: List[Chem.BasicMolecule], yT
 def trainQpharModel(trainingSet: List[Chem.BasicMolecule],
                     parameters: Dict[str, Union[str, int, float]],
                     ) -> Tuple[Union[None, Qphar], float]:
-    mostRigidMolecule = selectMostRigidMolecule(trainingSet)
+    mostRigidMolecule, remainingMolecules = selectMostRigidMolecule(trainingSet)
     activities = np.array([mol.getProperty(LOOKUPKEYS['activity']) for mol in trainingSet])
     qpharModel = None
     bestScore = 0.0
-    for i in range(len(trainingSet)-1):
-        model = Qphar(template=[mostRigidMolecule, trainingSet[i]], **parameters)
-        model.fit([trainingSet[j] for j in range(len(trainingSet)-1) if j != i], mergeOnce=True)
+    for i in range(len(remainingMolecules)):
+        model = Qphar(template=[mostRigidMolecule, remainingMolecules[i]], **parameters)
+        model.fit([remainingMolecules[j] for j in range(len(remainingMolecules)) if j != i], mergeOnce=True)
         score = scoreQpharModelByR2(model, trainingSet, activities)
         if score > bestScore:
             qpharModel = model
@@ -105,7 +105,13 @@ def gridSearch(folds: Dict[int, Dict[str, List[int]]],
     scores = {}
     for i, params in enumerate(parametersToTest):
         logging.info('Testing parameters: {}'.format(json.dumps(params)))
-        mean, std = makeCv(params, molecules, folds)
+        trainingParameters = {k: v for k, v in GENERAL_PARAMETERS.items()}
+        for k, v in params.items():
+            if k in ['max_depth', 'n_estimators']:
+                trainingParameters['modelKwargs'][k] = v
+            else:
+                trainingParameters[k] = v
+        mean, std = makeCv(trainingParameters, molecules, folds)
         scores[i] = {
             'mean': mean,
             'std': std

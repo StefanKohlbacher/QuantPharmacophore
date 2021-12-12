@@ -113,7 +113,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         elif isinstance(template, Iterable) and len(template) == 2:  # assume molecules
             m1, m2 = template[0], template[1]
             if not isinstance(m1, Chem.BasicMolecule) or not isinstance(m2, Chem.BasicMolecule):
-                raise TypeError('If template is iterable, length needs to be 2, whereas both entities need to be of type Chem.BasicMolecule')
+                raise ValueError('If template is iterable, length needs to be 2, whereas both entities need to be of type Chem.BasicMolecule')
 
             template, firstSample, score = self._initFromMolecules(m1, m2)
             for f in template:
@@ -935,7 +935,7 @@ class Qphar(BasicQphar):
         # handle unaligned samples -> set predictions to zero
         y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
-        outputValues = (y_pred, )
+        outputValues = (y_pred)
         if returnScores:
             outputValues = (*outputValues, scores)
         if returnFeatureData:
