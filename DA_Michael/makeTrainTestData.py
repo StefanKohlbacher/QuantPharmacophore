@@ -25,11 +25,12 @@ def loadMolecules(filePath: str, activityName: str) -> List[Chem.BasicMolecule]:
 
     r = SDFReader(filePath, multiconf=True)
     molecules: List[Chem.BasicMolecule] = []
+    activityName = ' <{}>'.format(activityName)
     for mol in r:
         sdb: Chem.StringDataBlock = Chem.getStructureData(mol)
         activity = None
         for entry in sdb:
-            if activityName in entry.header:
+            if activityName == entry.header:
                 try:
                     activity = float(entry.data)
                 except ValueError:
@@ -63,3 +64,5 @@ if __name__ == '__main__':
     trainingMolecules, validationMolecules = randomDataSplit(molecules, args.validationSize)
     mol_to_sdf(trainingMolecules, '{}trainingMolecules.sdf'.format(outputFolder), multiconf=True)
     mol_to_sdf(validationMolecules, '{}validationMolecules.sdf'.format(outputFolder), multiconf=True)
+    print('Saved training molecules to {}trainingMolecules.sdf'.format(outputFolder))
+    print('Saved validation molecules to {}validationMolecules.sdf'.format(outputFolder))
