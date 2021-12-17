@@ -956,7 +956,8 @@ class Qphar(BasicQphar):
         :return:
         """
         import pickle
-        
+
+        path = path if path.endswith('/') else '{}/'.format(path)
         if not os.path.isdir(path):
             os.makedirs(path)
 
@@ -997,6 +998,8 @@ class Qphar(BasicQphar):
 
     def load(self, path, **kwargs):
         import pickle
+
+        path = path if path.endswith('/') else '{}/'.format(path)
 
         with open('{}parameters.json'.format(path), 'r') as f:
             parameters = json.load(f)
