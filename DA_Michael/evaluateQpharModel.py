@@ -17,6 +17,7 @@ def parseArgs():
     parser.add_argument('-model', required=True, type=str, help='path to qphar model folder')
     parser.add_argument('-i', required=True, type=str, help='molecule test set')
     parser.add_argument('-activityName', required=True, type=str, help='name of activity field in sdf')
+    parser.add_argument('-o', required=True, type=str, help='output folder')
     return parser.parse_args()
 
 
