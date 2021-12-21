@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union, Tuple
 
 import CDPL.Pharm as Pharm
 import CDPL.Chem as Chem
@@ -42,7 +42,7 @@ def assignActivitiesToPharmacophores(pharmacophores, activities):
             feature.setProperty(LOOKUPKEYS['nrOfFeatures'], 1)
 
 
-class HyperPharmacophore(Pharm.BasicPharmacophore):
+class BasicQphar(Pharm.BasicPharmacophore):
 
     """
     This class is an extended version of the inital Hyperpharmacophore class. Changes are
@@ -64,7 +64,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
                  fuzzy=True,
                  threshold=1.5,
                  **kwargs):
-        super(HyperPharmacophore, self).__init__()
+        super(BasicQphar, self).__init__()
         self.template = template
         self.modelType = modelType
         self.modelKwargs = {} if modelKwargs is None else modelKwargs
@@ -384,6 +384,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         self.aligner.addFeatures(self, True)
         self.aligner.addFeatures(p, False)
         bestScore = 0
+        bestTfMatrix = Math.Matrix4D()
         while self.aligner.nextAlignment():
             tfMatrix = self.aligner.getTransform()
             score = self.scorer(self, p, tfMatrix)
@@ -392,6 +393,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
                 if score > bestScore:
                     Pharm.transform3DCoordinates(p, tfMatrix)
                     bestScore = score
+                    bestTfMatrix.assign(tfMatrix)
 
         self.aligner.clearEntities(False)
         self.aligner.clearEntities(True)
@@ -399,6 +401,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         if bestScore == 0:
             raise AlignmentError
 
+        Pharm.transform3DCoordinates(p, bestTfMatrix)
         if returnScore:
             return p, bestScore
         else:
@@ -480,7 +483,7 @@ class HyperPharmacophore(Pharm.BasicPharmacophore):
         raise NotImplementedError
 
 
-class DistanceHyperpharmacophore(HyperPharmacophore):
+class Qphar(BasicQphar):
 
     """
     This is basically just a reimplementation of the 'classical' Hyperpharmacophore from a previous version. Instead
@@ -500,7 +503,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
                  addFeatureFrequencyWeight=False,
                  **kwargs
                  ):
-        super(DistanceHyperpharmacophore, self).__init__(template, weightType=weightType, **kwargs)
+        super(Qphar, self).__init__(template, weightType=weightType, **kwargs)
         self.addFeatureFrequencyWeight = addFeatureFrequencyWeight
         self.distanceType = distanceType
         self.maxDistance = maxDistance
@@ -856,7 +859,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
         :param kwargs:
         :return:
         """
-        super(DistanceHyperpharmacophore, self).cleanFeatures(**kwargs)
+        super(Qphar, self).cleanFeatures(**kwargs)
 
         # determine min and max value of activity.
         toRemove = []
@@ -890,12 +893,12 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
             self.cleanedHP.removeFeature(i)
 
     def predict(self,
-                samples,
-                aggregateEnvironment=False,
-                returnScores=False,
-                returnFeatureData=False,
-                returnAlignedPharmacophores=False,
-                **kwargs):
+                samples: Union[List[Union[Chem.BasicMolecule, Pharm.BasicPharmacophore]], Chem.BasicMolecule, Pharm.BasicPharmacophore],
+                aggregateEnvironment: bool = False,
+                returnScores: bool = False,
+                returnFeatureData: bool = False,
+                returnAlignedPharmacophores: bool = False,
+                **kwargs) -> Union[np.array, Tuple[np.array, np.array], Tuple[np.array, np.array, np.array], Tuple[np.array, np.array, np.array, List[Pharm.BasicPharmacophore]]]:
         if self.trainingDim == 0:
             if returnScores:
                 return np.array([0] * len(samples)), [0] * len(samples)
@@ -937,7 +940,7 @@ class DistanceHyperpharmacophore(HyperPharmacophore):
 
         outputValues = (y_pred)
         if returnScores:
-            outputValues = (y_pred, scores)
+            outputValues = (*outputValues, scores)
         if returnFeatureData:
             outputValues = (*outputValues, featureData)
         if returnAlignedPharmacophores:

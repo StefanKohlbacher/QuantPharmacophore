@@ -1,10 +1,12 @@
+from typing import List
+
 import CDPL.Chem as Chem
 import CDPL.Pharm as Pharm
 import numpy as np
 import pandas as pd
 import sys
 import json
-from src.hyperpharmacophore import LOOKUPKEYS, DistanceHyperpharmacophore
+from src.qphar import LOOKUPKEYS, Qphar
 from src.utils import AlignmentError
 from src.ml_tools import analyse_regression
 
@@ -89,7 +91,7 @@ def splitData(molecules, activityName, validationFraction=None, testFraction=Non
     validation set. The validation set is then taken in proportion from the total training set.
     I.e.
     testFraction = 0.2; validationFraction = 0.1
-    --> trainingFraction = (1 - testFraction) - (1 - testFraction) * validationFraction
+    --> trainingFraction = (1 - testFraction) * validationFraction
 
 
     :param molecules:
@@ -99,7 +101,7 @@ def splitData(molecules, activityName, validationFraction=None, testFraction=Non
     :return:
     """
     molecules, activities = splitSamplesActivities(molecules, activityName)
-    sortedArgs = np.argsort(activities).tolist()
+    sortedArgs: List[int] = np.argsort(activities).tolist()
     # add most and least active compound to training set
     trainingIndices, validationIndices, testIndices = [sortedArgs[0]], [], []
     trainingIndices.append(sortedArgs[-1])
@@ -364,8 +366,8 @@ def train(template, remainingSamples, params):
     trainingSet.extend(remainingSamples)
     for j in range(len(remainingSamples)):
         try:
-            model = DistanceHyperpharmacophore([template, remainingSamples[j]],
-                                               **{k: v for k, v in params.items() if k != 'logPath'})
+            model = Qphar([template, remainingSamples[j]],
+                          **{k: v for k, v in params.items() if k != 'logPath'})
         except AlignmentError:
             continue
 
@@ -431,7 +433,7 @@ def gridSearch(datasets, searchParams, nrProcesses=1, outputPath=None):
     for args in jobs:
         i = args[-1]
         path = '{}{}/'.format(outputPath, i)
-        model = DistanceHyperpharmacophore()
+        model = Qphar()
         model.load('{}model/'.format(path))
         predictions = []
         for mol in testMolecules:

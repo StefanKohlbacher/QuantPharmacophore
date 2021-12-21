@@ -25,7 +25,7 @@ import os
 print('Current working directory', os.getcwd())
 
 try:
-    from src.hyperpharmacophore import DistanceHyperpharmacophore
+    from src.qphar import Qphar
     from src.molecule_tools import SDFReader
     from src.modules import loadMolecules, splitSamplesActivities, DEFAULT_TRAINING_PARAMETERS
     from src.utils import selectMostRigidMolecule
@@ -39,10 +39,10 @@ try:
         molecules, activities = splitSamplesActivities(molecules, 'pchembl_value')
 
         template, remainingMolecules = selectMostRigidMolecule(molecules)
-        model = DistanceHyperpharmacophore([template, remainingMolecules[0]], **DEFAULT_TRAINING_PARAMETERS)
+        model = Qphar([template, remainingMolecules[0]], **DEFAULT_TRAINING_PARAMETERS)
 
     else:
-        model = DistanceHyperpharmacophore()
+        model = Qphar()
 
     print('Successfully initialized model')
 
