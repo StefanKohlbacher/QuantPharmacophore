@@ -4,12 +4,14 @@ Evaluate a trained qphar model on the test set.
 import logging
 from argparse import ArgumentParser
 import os
+from typing import List, Tuple
 
 import numpy as np
+import pandas as pd
+from sklearn.metrics import r2_score, mean_squared_error
 
 from src.qphar import Qphar, LOOKUPKEYS
 from DA_Michael.makeTrainTestData import loadMolecules
-from DA_Michael.trainQphar import scoreQpharModelByR2
 
 
 def parseArgs():
@@ -32,5 +34,12 @@ if __name__ == '__main__':
     if not os.path.isdir(outputFolder):
         os.makedirs(outputFolder)
 
-    score = scoreQpharModelByR2(model, molecules, activities)
-    logging.info('R2-score: {}'.format(round(score, 3)))
+    yPred = model.predict(molecules)
+    r2 = r2_score(activities, yPred.flatten())
+    rmse = mean_squared_error(activities, yPred.flatten(), squared=False)
+    logging.info('R2-score: {}'.format(round(r2, 3)))
+    logging.info('RMSE-score: {}'.format(round(rmse, 3)))
+
+    pd.DataFrame(np.concatenate([yPred.reshape(-1, 1), activities.reshape(-1, 1)], axis=1),
+                 columns=['yPred', 'yTrue']).to_csv('{}predictions.csv'.format(outputFolder))
+    pd.DataFrame.from_dict({0: {'r2': r2, 'rmse': rmse}}, orient='index').to_csv('{}scores.csv'.format(outputFolder))
