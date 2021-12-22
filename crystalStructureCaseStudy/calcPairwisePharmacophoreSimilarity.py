@@ -18,6 +18,17 @@ from src.molecule_tools import SDFReader
 from src.pharmacophore_tools import loadPharmacophore, getPharmacophore
 
 
+FEATURE_TYPES = [
+    Pharm.FeatureType.AROMATIC,
+    Pharm.FeatureType.HYDROPHOBIC,
+    Pharm.FeatureType.H_BOND_DONOR,
+    Pharm.FeatureType.H_BOND_ACCEPTOR,
+    Pharm.FeatureType.NEG_IONIZABLE,
+    Pharm.FeatureType.POS_IONIZABLE,
+]
+DEFAULT_TOLERANCE = 1.5
+
+
 def parseArgs():
     parser = ArgumentParser()
     parser.add_argument('-inputA', required=True, type=str, help='path to pml or sdf file')
@@ -26,7 +37,69 @@ def parseArgs():
     parser.add_argument('-similarityScore', required=False, type=str, default='alignment',
                         help='one of ["alignment", "feature"], if not provided, then "alignment" is default')
     parser.add_argument('-fileName', required=True, type=str, default='name of output file')
+    parser.add_argument('-tolerance', required=False, type=float, default=0.8, help='overlap tolerance')
     return parser.parse_args()
+
+
+class Scorer:
+
+    def __init__(self,
+                 similarityMetric: str,
+                 tolerance: float = None,
+                 ):
+        self.similarityMetric = similarityMetric
+        self.tolerance = tolerance if tolerance is not None else DEFAULT_TOLERANCE
+
+    def calculateSimilarity(self,
+                            elementA: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
+                            elementB: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
+                            ) -> float:
+        alignedPharmacophores, alignmentScore = alignElements(elementA, elementB)
+        if self.similarityMetric == 'alignment':
+            return alignmentScore
+
+        elif self.similarityMetric == 'feature':
+            return self.calculateFeatureScore(*alignedPharmacophores)
+
+        else:
+            raise ValueError(
+                'Invalid similarity metric "{}" provided. Most be one of [alignment, feature]'.format(self.similarityMetric))
+
+    def calcEuclideanDistance(self, coordsA: np.array, coordsB: np.array) -> float:
+        return np.sqrt(np.sum(np.power(coordsA - coordsB, 2), axis=0))
+
+    def calculateExponent(self, distance) -> float:
+        return -2.5 * (distance / self.tolerance) ** 2
+
+    def calculateFeatureScore(self,
+                              pharmacophoreA: Pharm.BasicPharmacophore,
+                              pharmacophoreB: Pharm.BasicPharmacophore,
+                              ) -> float:
+        fab, fa, fb = 0, 0, 0
+        for featureType in FEATURE_TYPES:
+
+            for i in range(pharmacophoreA.numFeatures):
+                featureA = pharmacophoreA.getFeature(i)
+
+                if Pharm.getType(featureA) != featureType:
+                    continue
+
+                fa += np.exp(self.calculateExponent(0))
+
+                for j in range(pharmacophoreB.numFeatures):
+                    featureB = pharmacophoreB.getFeature(j)
+
+                    if Pharm.getType(featureB) != featureType:
+                        continue
+
+                    dij = self.calcEuclideanDistance(Chem.get3DCoordinates(featureA).toArray(),
+                                                     Chem.get3DCoordinates(featureB).toArray())
+                    fab += np.exp(self.calculateExponent(dij))
+
+        for j in range(pharmacophoreB.numFeatures):
+            fb += np.exp(self.calculateExponent(0))
+
+        return fab / np.sqrt(fa * fb)
 
 
 def loadDataset(path: str) -> List[Union[Chem.BasicMolecule, Pharm.BasicPharmacophore]]:
@@ -50,12 +123,6 @@ def loadDatasets(pathA: str,
     return datasetA, datasetB
 
 
-def calculateFeatureScore(pharmacophoreA: Pharm.BasicPharmacophore,
-                          pharmacophoreB: Pharm.BasicPharmacophore,
-                          ) -> float:
-    raise NotImplementedError
-
-
 def alignMoleculeToMolecule(molA: Chem.BasicMolecule,
                             molB: Chem.BasicMolecule,
                             ) -> Tuple[Tuple[Pharm.BasicPharmacophore, Pharm.BasicPharmacophore], float]:
@@ -66,12 +133,12 @@ def alignMoleculeToMolecule(molA: Chem.BasicMolecule,
     bestConfA, bestConfB = 0, 0
 
     for i in range(Chem.getNumConformations(molA)):
-        Chem.setConformation(molA, i)
+        Chem.applyConformation(molA, i)
         pharmA = getPharmacophore(molA, fuzzy=True)
 
         aligner.addFeatures(pharmA, True)
         for j in range(Chem.getNumConformations(molB)):
-            Chem.setConformation(molB, j)
+            Chem.applyConformation(molB, j)
             pharmB = getPharmacophore(molB, fuzzy=True)
             aligner.addFeatures(pharmB, False)
 
@@ -91,8 +158,8 @@ def alignMoleculeToMolecule(molA: Chem.BasicMolecule,
 
         aligner.clearEntities(True)
 
-    Chem.setConformation(molA, bestConfA)
-    Chem.setConformation(molB, bestConfB)
+    Chem.applyConformation(molA, bestConfA)
+    Chem.applyConformation(molB, bestConfB)
     pharmA, pharmB = getPharmacophore(molA, fuzzy=True), getPharmacophore(molB, fuzzy=True)
     Pharm.transform3DCoordinates(pharmB, bestTfMatrix)
     return (pharmA, pharmB), bestScore
@@ -109,7 +176,7 @@ def alignMoleculeToPharmacophore(pharm: Pharm.BasicPharmacophore,
 
     aligner.addFeatures(pharm, True)
     for j in range(Chem.getNumConformations(mol)):
-        Chem.setConformation(mol, j)
+        Chem.applyConformation(mol, j)
         pharmB = getPharmacophore(mol, fuzzy=True)
         aligner.addFeatures(pharmB, False)
 
@@ -126,7 +193,7 @@ def alignMoleculeToPharmacophore(pharm: Pharm.BasicPharmacophore,
 
         aligner.clearEntities(False)
 
-    Chem.setConformation(mol, bestConf)
+    Chem.applyConformation(mol, bestConf)
     pharmB = getPharmacophore(mol, fuzzy=True)
     Pharm.transform3DCoordinates(pharmB, bestTfMatrix)
     return (pharm, pharmB), bestScore
@@ -183,26 +250,12 @@ def alignElements(elementA: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
     return pharmacophores, alignmentScore
 
 
-def calculateSimilarity(elementA: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
-                        elementB: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
-                        similarityMetric: str,
-                        ) -> float:
-    alignedPharmacophores, alignmentScore = alignElements(elementA, elementB)
-    if similarityMetric == 'alignment':
-        return alignmentScore
-
-    elif similarityMetric == 'feature':
-        return calculateFeatureScore(*alignedPharmacophores)
-
-    else:
-        raise ValueError(
-            'Invalid similarity metric "{}" provided. Most be one of [alignment, feature]'.format(similarityMetric))
-
-
 def processDatasets(datasetA: List[Pharm.BasicPharmacophore],
                     datasetB: List[Pharm.BasicPharmacophore],
                     similarityMetric: str,
+                    tolerance: float = None
                     ) -> np.array:
+    scorer = Scorer(similarityMetric=similarityMetric, tolerance=tolerance)
     similarities = np.ones((len(datasetA), len(datasetB)))
     logging.info('Calculating {} pairwise similarities for {} and {} elements'.format(similarities.size,
                                                                                       similarities.shape[0],
@@ -212,10 +265,14 @@ def processDatasets(datasetA: List[Pharm.BasicPharmacophore],
         elementA = datasetA[i]
 
         for j in range(len(datasetB)):
+            if i == j:
+                similarities[i, j] = 1
+                continue
+
             elementB = datasetB[j]
 
             logging.info('Calculate similarity for {}, {}'.format(i, j))
-            similarityScore = calculateSimilarity(elementA, elementB, similarityMetric)
+            similarityScore = scorer.calculateSimilarity(elementA, elementB)
             similarities[i, j] = similarityScore
 
     return similarities
@@ -227,5 +284,5 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     datasetA, datasetB = loadDatasets(args.inputA, args.inputA if args.inputB is None else args.inputB)
 
-    similarities = processDatasets(datasetA, datasetB, args.similarityScore)
+    similarities = processDatasets(datasetA[:5], datasetB[:5], args.similarityScore)
     pd.DataFrame(similarities).to_csv('./{}.csv'.format(args.fileName))
