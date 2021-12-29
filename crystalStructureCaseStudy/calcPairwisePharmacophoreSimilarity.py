@@ -265,9 +265,9 @@ def processDatasets(datasetA: List[Pharm.BasicPharmacophore],
         elementA = datasetA[i]
 
         for j in range(len(datasetB)):
-            if i == j:
-                similarities[i, j] = 1
-                continue
+            # if i == j:
+            #     similarities[i, j] = 1
+            #     continue
 
             elementB = datasetB[j]
 
