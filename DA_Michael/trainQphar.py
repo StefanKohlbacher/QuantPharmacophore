@@ -41,6 +41,8 @@ def parseArgs():
     parser.add_argument('-activityName', required=True, type=str, help='name of activity property in sdf file')
     parser.add_argument('-nrCvFolds', required=False, type=int, default=5, help='number of cv folds')
     parser.add_argument('-o', required=True, type=str, help='folder to save results to')
+    parser.add_argument('-maxDepth', required=False, type=int, default=None, help='max depth of random forest')
+    parser.add_argument('-nEstimators', required=False, type=int, default=None, help='nr estimators of random forest')
     return parser.parse_args()
 
 
@@ -104,13 +106,13 @@ def gridSearch(folds: Dict[int, Tuple[List[int], List[int]]],
                ) -> Dict[int, Dict[str, float]]:
     scores = {}
     for i, params in enumerate(parametersToTest):
-        logging.info('Running parameters: {}'.format(json.dumps(params)))
         trainingParameters = {k: v for k, v in GENERAL_PARAMETERS.items()}
         for k, v in params.items():
             if k in ['max_depth', 'n_estimators']:
                 trainingParameters['modelKwargs'][k] = v
             else:
                 trainingParameters[k] = v
+        logging.info('Running parameters: {}'.format(json.dumps(trainingParameters)))
         mean, std = makeCv(trainingParameters, molecules, folds)
         scores[i] = {
             'mean': mean,
@@ -124,6 +126,14 @@ if __name__ == '__main__':
     logging.basicConfig()
     logging.getLogger().setLevel(logging.INFO)
     outputFolder = args.o if args.o.endswith('/') else '{}/'.format(args.o)
+
+    if args.maxDepth is not None:
+        GENERAL_PARAMETERS['modelKwargs']['max_depth'] = args.maxDepth
+        logging.info('Setting max_depth to {}'.format(args.maxDepth))
+    if args.nEstimators is not None:
+        GENERAL_PARAMETERS['modelKwargs']['n_estimators'] = args.nEstimators
+        logging.info('Setting n_estimators to {}'.format(args.nEstimators))
+
     molecules = loadMolecules(args.iTrain, args.activityName)
     cvFolds = splitCv(len(molecules), args.nrCvFolds)
     parametersToTest = combineParameters(SEARCH_PARAMETERS)
