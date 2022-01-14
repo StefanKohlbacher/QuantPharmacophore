@@ -96,6 +96,8 @@ def makeCv(parameters: Dict[str, Union[str, int, float]],
             scores.append(testScore)
         else:
             scores.append(0)
+
+        break
     scores = np.array(scores)
     return np.mean(scores), np.std(scores)
 
@@ -148,7 +150,13 @@ if __name__ == '__main__':
                                                                         cvPerformance.at[bestModelIndex, 'std']))
     logging.info('Best parameters: {}'.format(json.dumps(parametersToTest[int(bestModelIndex)])))
     logging.info('Training model with best parameter on entire training set...')
-    finalModel, trainingScore = trainQpharModel(molecules, parametersToTest[int(bestModelIndex)])
+    trainingParameters = {k: v for k, v in GENERAL_PARAMETERS.items()}
+    for k, v in parametersToTest[int(bestModelIndex)].items():
+        if k in ['max_depth', 'n_estimators']:
+            trainingParameters['modelKwargs'][k] = v
+        else:
+            trainingParameters[k] = v
+    finalModel, trainingScore = trainQpharModel(molecules, trainingParameters)
 
     if not os.path.isdir(outputFolder):
         os.makedirs(outputFolder)

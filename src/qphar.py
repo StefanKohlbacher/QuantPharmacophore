@@ -356,9 +356,9 @@ class BasicQphar(Pharm.BasicPharmacophore):
 
                 self.aligner.clearEntities(False)
 
+            signal.alarm(0)  # reset alarm in case we were successful
         except TimeoutError:
             pass
-        signal.alarm(0)  # reset alarm in case we were successful
 
         self.aligner.clearEntities(True)
 
@@ -391,7 +391,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.aligner.addFeatures(self, True)
         self.aligner.addFeatures(p, False)
         bestScore = 0
-        signal.alarm(self.timeout)
+        signal.alarm(int(self.timeout/10))
         try:
             while self.aligner.nextAlignment():
                 tfMatrix = self.aligner.getTransform()
@@ -401,9 +401,9 @@ class BasicQphar(Pharm.BasicPharmacophore):
                     if score > bestScore:
                         Pharm.transform3DCoordinates(p, tfMatrix)
                         bestScore = score
+            signal.alarm(0)  # reset alarm in case we were successful
         except TimeoutError:
             pass
-        signal.alarm(0)  # reset alarm in case we were successful
 
         self.aligner.clearEntities(False)
         self.aligner.clearEntities(True)
