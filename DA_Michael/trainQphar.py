@@ -97,7 +97,6 @@ def makeCv(parameters: Dict[str, Union[str, int, float]],
         else:
             scores.append(0)
 
-        break
     scores = np.array(scores)
     return np.mean(scores), np.std(scores)
 
@@ -141,9 +140,9 @@ if __name__ == '__main__':
     parametersToTest = combineParameters(SEARCH_PARAMETERS)
     logging.info('Testing {} parameter combinations'.format(len(parametersToTest)))
 
-    cvPerformance = gridSearch(cvFolds, molecules, parametersToTest[:1])
+    cvPerformance = gridSearch(cvFolds, molecules, parametersToTest)
     cvPerformance = pd.DataFrame.from_dict(cvPerformance, orient='index')
-    cvPerformance['parameters'] = [json.dumps(params) for params in parametersToTest[:1]]
+    cvPerformance['parameters'] = [json.dumps(params) for params in parametersToTest]
     cvPerformance.sort_values('mean', ascending=False, inplace=True)
     bestModelIndex = cvPerformance.index.values[0]
     logging.info('Best cv performance:\nMean R2: {}\nStd R2: {}'.format(cvPerformance.at[bestModelIndex, 'mean'],
