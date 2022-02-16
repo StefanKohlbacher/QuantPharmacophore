@@ -391,7 +391,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.aligner.addFeatures(self, True)
         self.aligner.addFeatures(p, False)
         bestScore = 0
-        signal.alarm(int(self.timeout/10))
+        signal.alarm(int(self.timeout/5))
         try:
             while self.aligner.nextAlignment():
                 tfMatrix = self.aligner.getTransform()
@@ -908,6 +908,7 @@ class Qphar(BasicQphar):
                 returnScores: bool = False,
                 returnFeatureData: bool = False,
                 returnAlignedPharmacophores: bool = False,
+                ignoreAlign: bool = False,
                 **kwargs) -> Union[np.array, Tuple[np.array, np.array], Tuple[np.array, np.array, np.array], Tuple[np.array, np.array, np.array, List[Pharm.BasicPharmacophore]]]:
         if self.trainingDim == 0:
             if returnScores:
@@ -922,7 +923,11 @@ class Qphar(BasicQphar):
         scores, featureData, alignedPharmacophores = [], [], []
         for s in samples:
             try:
-                alignedPharmacophore, score = self.align(s, returnScore=True, **kwargs)
+                if ignoreAlign and isinstance(s, Pharm.BasicPharmacophore):
+                    alignedPharmacophore = s
+                    score = 1
+                else:
+                    alignedPharmacophore, score = self.align(s, returnScore=True, **kwargs)
                 features = self.getFeatureData(alignedPharmacophore, aggregateEnvironment=aggregateEnvironment, **kwargs)
                 alignedPharmacophores.append(alignedPharmacophore)
             except AlignmentError:
