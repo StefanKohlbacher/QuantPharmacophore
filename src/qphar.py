@@ -291,7 +291,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.trainHPModel(**kwargs)
         self.onMLTrainingEnd(samples, **kwargs)
 
-    def align(self, sample, returnScore=False, **kwargs):
+    def align(self, sample: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore], returnScore=False, **kwargs):
         """
         Align the given sample to the HP's model template. Keep in mind that the sample will not be aligned to the
         HP itself, but only its starting point. This has several  advantages:
@@ -912,6 +912,7 @@ class Qphar(BasicQphar):
                 returnScores: bool = False,
                 returnFeatureData: bool = False,
                 returnAlignedPharmacophores: bool = False,
+                ignoreAlign: bool = False,
                 **kwargs) -> Union[np.array, Tuple[np.array, np.array], Tuple[np.array, np.array, np.array], Tuple[np.array, np.array, np.array, List[Pharm.BasicPharmacophore]]]:
         if self.trainingDim == 0:
             if returnScores:
@@ -926,7 +927,11 @@ class Qphar(BasicQphar):
         scores, featureData, alignedPharmacophores = [], [], []
         for s in samples:
             try:
-                alignedPharmacophore, score = self.align(s, returnScore=True, **kwargs)
+                if ignoreAlign and isinstance(s, Pharm.BasicPharmacophore):
+                    alignedPharmacophore = s
+                    score = 1
+                else:
+                    alignedPharmacophore, score = self.align(s, returnScore=True, **kwargs)
                 features = self.getFeatureData(alignedPharmacophore, aggregateEnvironment=aggregateEnvironment, **kwargs)
                 alignedPharmacophores.append(alignedPharmacophore)
             except AlignmentError:
