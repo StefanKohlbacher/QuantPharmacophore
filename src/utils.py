@@ -224,7 +224,7 @@ def standardPropertiesBaseline(trainingSet, testSet, activityLookupKey, model=No
 
 def runTimeHandler(signum, frame):
     message = 'Caught signal -> time ran out!'
-    print(message)
+    # print(message)
     raise TimeoutError(message)
 
 

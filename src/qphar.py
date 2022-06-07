@@ -60,7 +60,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
                  logPath=None,
                  weightType='distance',
                  name='Hyperpharmacophore',
-                 alignmentTimeout=30,
+                 alignmentTimeout=15,
                  fuzzy=True,
                  threshold=1.5,
                  **kwargs):
@@ -113,7 +113,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         elif isinstance(template, Iterable) and len(template) == 2:  # assume molecules
             m1, m2 = template[0], template[1]
             if not isinstance(m1, Chem.BasicMolecule) or not isinstance(m2, Chem.BasicMolecule):
-                raise TypeError('If template is iterable, length needs to be 2, whereas both entities need to be of type Chem.BasicMolecule')
+                raise ValueError('If template is iterable, length needs to be 2, whereas both entities need to be of type Chem.BasicMolecule')
 
             template, firstSample, score = self._initFromMolecules(m1, m2)
             for f in template:
@@ -334,25 +334,32 @@ class BasicQphar(Pharm.BasicPharmacophore):
         bestPharmacophore = None
         self.aligner.addFeatures(self, True)
 
-        for j in range(Chem.getNumConformations(mol)):
-            Chem.applyConformation(mol, j)
-            p = getPharmacophore(mol, fuzzy=self.fuzzy)
-            self.aligner.addFeatures(p, False)
+        signal.alarm(self.timeout)
+        try:
+            for j in range(Chem.getNumConformations(mol)):
+                Chem.applyConformation(mol, j)
+                p = getPharmacophore(mol, fuzzy=self.fuzzy)
+                self.aligner.addFeatures(p, False)
 
-            while self.aligner.nextAlignment():
-                tfMatrix = self.aligner.getTransform()
-                score = self.scorer(self, p, tfMatrix)
+                while self.aligner.nextAlignment():
+                    tfMatrix = self.aligner.getTransform()
+                    score = self.scorer(self, p, tfMatrix)
 
-                if score is not None:
-                    Pharm.transform3DCoordinates(p, tfMatrix)
-                    conformations.append((p, score))
-                    if score > bestScore:
-                        bestScore = score
-                        bestPharmacophore = p
-                else:
-                    conformations.append((p, score))
+                    if score is not None:
+                        Pharm.transform3DCoordinates(p, tfMatrix)
+                        conformations.append((p, score))
+                        if score > bestScore:
+                            bestScore = score
+                            bestPharmacophore = p
+                    else:
+                        conformations.append((p, score))
 
-            self.aligner.clearEntities(False)
+                self.aligner.clearEntities(False)
+
+            signal.alarm(0)
+        except TimeoutError:
+            pass
+
         self.aligner.clearEntities(True)
 
         if bestScore == 0:
@@ -385,15 +392,21 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.aligner.addFeatures(p, False)
         bestScore = 0
         bestTfMatrix = Math.Matrix4D()
-        while self.aligner.nextAlignment():
-            tfMatrix = self.aligner.getTransform()
-            score = self.scorer(self, p, tfMatrix)
+        signal.alarm(int(self.timeout/10))
+        try:
+            while self.aligner.nextAlignment():
+                tfMatrix = self.aligner.getTransform()
+                score = self.scorer(self, p, tfMatrix)
 
-            if score is not None:
-                if score > bestScore:
-                    Pharm.transform3DCoordinates(p, tfMatrix)
-                    bestScore = score
-                    bestTfMatrix.assign(tfMatrix)
+                if score is not None:
+                    if score > bestScore:
+                        Pharm.transform3DCoordinates(p, tfMatrix)
+                        bestScore = score
+                        bestTfMatrix.assign(tfMatrix)
+
+            signal.alarm(0)
+        except TimeoutError:
+            pass
 
         self.aligner.clearEntities(False)
         self.aligner.clearEntities(True)
@@ -407,7 +420,8 @@ class BasicQphar(Pharm.BasicPharmacophore):
         else:
             return p
 
-    def fuzzyfyPharmacophore(self, p, **kwargs):
+    @staticmethod
+    def fuzzyfyPharmacophore(p, **kwargs):
         for f in p:
             if Pharm.getType(f) == 5 or Pharm.getType(f) == 6:
                 Pharm.clearOrientation(f)
@@ -959,7 +973,8 @@ class Qphar(BasicQphar):
         :return:
         """
         import pickle
-        
+
+        path = path if path.endswith('/') else '{}/'.format(path)
         if not os.path.isdir(path):
             os.makedirs(path)
 
@@ -1000,6 +1015,8 @@ class Qphar(BasicQphar):
 
     def load(self, path, **kwargs):
         import pickle
+
+        path = path if path.endswith('/') else '{}/'.format(path)
 
         with open('{}parameters.json'.format(path), 'r') as f:
             parameters = json.load(f)

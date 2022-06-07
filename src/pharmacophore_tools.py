@@ -1,3 +1,5 @@
+from typing import List, Union, Dict, Tuple
+
 import CDPL.Pharm as Pharm
 import CDPL.Base as Base
 import CDPL.Chem as Chem
@@ -15,14 +17,14 @@ FEATURE_TYPES = {
 FEATURE_TYPES_INVERSE = {value: key for key, value in FEATURE_TYPES.items()}
 
 
-def savePharmacophore(pharmacophore: Pharm.BasicPharmacophore, path: str):
+def savePharmacophore(pharmacophore: Pharm.BasicPharmacophore, path: str) -> None:
     # print("Saving Pharmacophore")
     writer = Pharm.FilePMLFeatureContainerWriter(path)
     writer.write(pharmacophore)
     writer.close()
 
 
-def loadPharmacophore(path):
+def loadPharmacophore(path: str) -> Union[Pharm.BasicPharmacophore, None]:
     # print("Loading pharmacophore from %s" % path)
     ifs = Base.FileIOStream(path)
     r = Pharm.PMLPharmacophoreReader(ifs)
@@ -31,7 +33,7 @@ def loadPharmacophore(path):
         r.read(pharm)
         return pharm
     except:
-        return False
+        return None
 
 
 def getPharmacophore(mol: Chem.BasicMolecule, fuzzy=True) -> Pharm.BasicPharmacophore:
@@ -64,6 +66,7 @@ def getInteractionPharmacophore(protein: Chem.BasicMolecule,
                                 fuzzy=False,
                                 ) -> Pharm.BasicPharmacophore:
     assert isinstance(protein, Chem.BasicMolecule) and isinstance(ligand, Chem.BasicMolecule)
+    Chem.clearSSSR(protein)
     Pharm.prepareForPharmacophoreGeneration(protein)
     Pharm.prepareForPharmacophoreGeneration(ligand)
 
