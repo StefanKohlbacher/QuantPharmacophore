@@ -898,7 +898,12 @@ class Qphar(BasicQphar):
                 returnScores: bool = False,
                 returnFeatureData: bool = False,
                 returnAlignedPharmacophores: bool = False,
-                **kwargs) -> Union[np.array, Tuple[np.array, np.array], Tuple[np.array, np.array, np.array], Tuple[np.array, np.array, np.array, List[Pharm.BasicPharmacophore]]]:
+                **kwargs) -> Union[
+        np.ndarray,
+        Tuple[np.ndarray, np.ndarray],
+        Tuple[np.ndarray, np.ndarray, np.ndarray],
+        Tuple[np.ndarray, np.ndarray, np.ndarray, List[Pharm.BasicPharmacophore]],
+    ]:
         if self.trainingDim == 0:
             if returnScores:
                 return np.array([0] * len(samples)), [0] * len(samples)
