@@ -54,7 +54,9 @@ def getPharmacophore(mol: Chem.BasicMolecule, fuzzy=True) -> Pharm.BasicPharmaco
     pharm_generator.generate(mol, pharm)
     if fuzzy:
         for f in pharm:
-            if Pharm.getType(f) == 5 or Pharm.getType(f) == 6:
+            if Pharm.getType(f) in {  # Pharm.FeatureType.AROMATIC,
+                                    Pharm.FeatureType.H_BOND_DONOR,
+                                    Pharm.FeatureType.H_BOND_ACCEPTOR}:
                 Pharm.clearOrientation(f)
                 Pharm.setGeometry(f, Pharm.FeatureGeometry.SPHERE)
     return pharm

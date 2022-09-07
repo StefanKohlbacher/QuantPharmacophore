@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Dict, Set, Any
 
 import CDPL.Pharm as Pharm
 import CDPL.Chem as Chem
@@ -54,15 +54,15 @@ class BasicQphar(Pharm.BasicPharmacophore):
     """
 
     def __init__(self,
-                 template=None,
-                 modelType='linearRegression',
-                 modelKwargs=None,
-                 logPath=None,
-                 weightType='distance',
-                 name='Hyperpharmacophore',
-                 alignmentTimeout=15,
-                 fuzzy=True,
-                 threshold=1.5,
+                 template: Union[Pharm.BasicPharmacophore, Tuple[Chem.BasicMolecule, Chem.BasicMolecule]] = None,
+                 modelType: str = 'linearRegression',
+                 modelKwargs: Dict[str, Any] = None,
+                 logPath: str = None,
+                 weightType: str = 'distance',
+                 name: str = 'Hyperpharmacophore',
+                 alignmentTimeout: int = 15,
+                 fuzzy: bool = True,
+                 threshold: float = 1.5,
                  **kwargs):
         super(BasicQphar, self).__init__()
         self.template = template
@@ -93,8 +93,8 @@ class BasicQphar(Pharm.BasicPharmacophore):
             raise TypeError('Unrecognized modelType {}. Should be either a str or a list strings'.format(type(self.modelType)))
 
         # some collections to store data
-        self.samples = []  # contains initial samples, without any specific conformation
-        self.alignedSamples = []  # contains tuples of aligned pharmacophores and scores
+        self.samples: List[Union[Chem.BasicMolecule, Pharm.BasicPharmacophore]] = []  # contains initial samples, without any specific conformation
+        self.alignedSamples: List[Tuple[Union[Chem.BasicMolecule, Pharm.BasicPharmacophore], float]] = []  # contains tuples of aligned pharmacophores and scores
         self.cleanedHP = Pharm.BasicPharmacophore()
         self.nrSamples = 0
 
@@ -105,7 +105,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         if isinstance(template, Pharm.BasicPharmacophore):
             self.nrSamples += 1
             for f in template:
-                newFeature = self.addFeature()
+                newFeature: Pharm.BasicFeature = self.addFeature()
                 newFeature.assign(f)
             self.samples.append(template)
             self.alignedSamples.append((template, 0))
@@ -291,7 +291,10 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.trainHPModel(**kwargs)
         self.onMLTrainingEnd(samples, **kwargs)
 
-    def align(self, sample: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore], returnScore=False, **kwargs):
+    def align(self,
+              sample: Union[Chem.BasicMolecule, Pharm.BasicPharmacophore],
+              returnScore: bool = False,
+              **kwargs) -> Tuple[Pharm.BasicPharmacophore, float]:
         """
         Align the given sample to the HP's model template. Keep in mind that the sample will not be aligned to the
         HP itself, but only its starting point. This has several  advantages:
@@ -320,7 +323,11 @@ class BasicQphar(Pharm.BasicPharmacophore):
         self.scorer = Pharm.PharmacophoreFitScore()
         return alignedPharmacophore, score
 
-    def _alignMolecule(self, mol, returnScore=True, returnAllConformations=False, **kwargs):
+    def _alignMolecule(self,
+                       mol: Chem.BasicMolecule,
+                       returnScore: bool = True,
+                       returnAllConformations: bool = False,
+                       **kwargs):
         """
         Align a molecule with multiple conformations (minimum 1) to the template. Returns the pharmacophore of the
         aligned molecule, as well as the alignment score if True.
@@ -376,7 +383,10 @@ class BasicQphar(Pharm.BasicPharmacophore):
             else:
                 return bestPharmacophore
 
-    def _alignPharmacophore(self, p, returnScore=True, **kwargs):
+    def _alignPharmacophore(self,
+                            p: Pharm.BasicPharmacophore,
+                            returnScore: bool = True,
+                            **kwargs) -> Tuple[Pharm.BasicPharmacophore, float]:
         """
         Align a given pharmacophore to the template. Aligns the aligned pharmacophore as well as th alignment score if
         True.
@@ -421,14 +431,14 @@ class BasicQphar(Pharm.BasicPharmacophore):
             return p
 
     @staticmethod
-    def fuzzyfyPharmacophore(p, **kwargs):
+    def fuzzyfyPharmacophore(p, **kwargs) -> None:
         for f in p:
             if Pharm.getType(f) == 5 or Pharm.getType(f) == 6:
                 Pharm.clearOrientation(f)
                 Pharm.setGeometry(f, Pharm.FeatureGeometry.SPHERE)
 
     @abstractmethod
-    def createHPFeatures(self, **kwargs):
+    def createHPFeatures(self, **kwargs) -> None:
         """
         Creates the HP features from a cloud of individual pharmacophores. These features are obtained after aligning
         a collection of individual samples, but where the features are not merged during the alignment process, since
@@ -450,7 +460,7 @@ class BasicQphar(Pharm.BasicPharmacophore):
         """
         raise NotImplementedError
 
-    def cleanFeatures(self, **kwargs):
+    def cleanFeatures(self, **kwargs) -> None:
         """
         Creates a copy of the HP, containing all the features. Then sequentially removes features with ambiguous
         activity, which do not clearly determine the activity of the HP feature.
@@ -510,18 +520,18 @@ class Qphar(BasicQphar):
     """
 
     def __init__(self,
-                 template=None,
-                 distanceType='inverse',
-                 maxDistance=1e3,
-                 weightType='distance',
-                 addFeatureFrequencyWeight=False,
+                 template: Union[Pharm.BasicPharmacophore, Tuple[Chem.BasicMolecule, Chem.BasicMolecule]] = None,
+                 distanceType: str = 'inverse',
+                 maxDistance: float = 1e3,
+                 weightType: str = 'distance',
+                 addFeatureFrequencyWeight: bool = False,
                  **kwargs
                  ):
         super(Qphar, self).__init__(template, weightType=weightType, **kwargs)
         self.addFeatureFrequencyWeight = addFeatureFrequencyWeight
         self.distanceType = distanceType
         self.maxDistance = maxDistance
-        self.trainingDim = None
+        self.trainingDim: Union[int, None] = None
         self.gaussianFeatures = []  # same order as features in self
 
     def onFeatureDeterminationEnd(self, samples, **kwargs):
@@ -535,7 +545,7 @@ class Qphar(BasicQphar):
             #     featureShape, featureShapeFunction = prepareForShapeAlignment(featureSet)
             #     self.gaussianFeatures.append((featureShape, featureShapeFunction))
 
-    def trainHPModel(self, aggregateEnvironment=False, **kwargs):
+    def trainHPModel(self, aggregateEnvironment=False, **kwargs) -> None:
         """
         Extract the feature data from the samples and train one or multiple ML models on this data.
         :param aggregateEnvironment: Indicates whether all features of the same type are taken into account or just
@@ -574,8 +584,8 @@ class Qphar(BasicQphar):
         else:
             self.mlModel.fit(featureData, y_true)
 
-    def getFeatureData(self, p, aggregateEnvironment=False, **kwargs):
-        features = []
+    def getFeatureData(self, p, aggregateEnvironment=False, **kwargs) -> List[float]:
+        features: List[float] = []
         for f in self.cleanedHP:
             # get contribution from corresponding feature(s) in query
             if aggregateEnvironment:
@@ -612,19 +622,19 @@ class Qphar(BasicQphar):
                 features.append(weight)
         return features
 
-    def createHPFeatures(self, **kwargs):
+    def createHPFeatures(self, **kwargs) -> None:
         featureSet = Pharm.BasicPharmacophore()
         for s, score in self.alignedSamples:
             for f in s:
                 added = featureSet.addFeature()
                 added.assign(f)
         self.log(p=featureSet, name='featureSet_{}'.format(time.time()))
-        clusters = self.clusterFeatures(featureSet, **kwargs)
+        clusters: Dict[Pharm.FeatureType, List[List[int]]] = self.clusterFeatures(featureSet, **kwargs)
 
         # now that we have the clusters, we need to place features, which represent the clusters. More than one feature
         # can be placed to represent clusters. The important part is that ALL the features in the feature set are
         # finally represented by a single HP feature, whereas a single HP feature can represent more than one feature.
-        def createNewFeature(coordinates, featureType, **kwargs):
+        def createNewFeature(coordinates: np.ndarray, featureType: Pharm.FeatureType, **kwargs) -> Pharm.BasicFeature:
             addedFeature = self.cleanedHP.addFeature()
             Pharm.setType(addedFeature, featureType)
             if not isinstance(coordinates, Math.Vector3D):
@@ -638,7 +648,10 @@ class Qphar(BasicQphar):
 
             return addedFeature
 
-        def placeOneFeature(cluster, featureType, threshold=None, **kwargs):
+        def placeOneFeature(cluster: List[int],
+                            featureType: Pharm.FeatureType,
+                            threshold: float = None,
+                            **kwargs) -> bool:
             """
             Place a feature in the 'center of gravity' of all features.
             If it does not work, try the center.
@@ -647,11 +660,11 @@ class Qphar(BasicQphar):
             """
             success = False
 
-            allCoordinates = []
+            allCoordinates: List[np.ndarray] = []
             for i in cluster:
                 f = featureSet.getFeature(i)
                 allCoordinates.append(Chem.get3DCoordinates(f).toArray())
-            allCoordinates = np.stack(allCoordinates, axis=0)
+            allCoordinates: np.ndarray = np.stack(allCoordinates, axis=0)
 
             # calculate center
             pass
@@ -660,9 +673,9 @@ class Qphar(BasicQphar):
             center = np.mean(allCoordinates, axis=0)
             canReachAll = True
             for i in cluster:
-                f = featureSet.getFeature(i)
-                r = Pharm.getTolerance(f)
-                c = Chem.get3DCoordinates(f).toArray()
+                f: Pharm.BasicFeature = featureSet.getFeature(i)
+                # r: float = Pharm.getTolerance(f)
+                c: np.ndarray = Chem.get3DCoordinates(f).toArray()
                 if threshold is None:
                     t = self.threshold
                 else:
@@ -673,10 +686,10 @@ class Qphar(BasicQphar):
 
             if canReachAll:
                 success = True
-                addedFeature = createNewFeature(center, featureType)
-                activities = []  # store activities of all merged features
+                addedFeature: Pharm.BasicFeature = createNewFeature(center, featureType)
+                activities: List[float] = []  # store activities of all merged features
                 for i in cluster:
-                    f = featureSet.getFeature(i)
+                    f: Pharm.BasicFeature = featureSet.getFeature(i)
                     activities.append(f.getProperty(LOOKUPKEYS['activity']))
                 addedFeature.setProperty(LOOKUPKEYS['activities'], activities)
                 addedFeature.setProperty(LOOKUPKEYS['nrOfFeatures'], len(cluster))
@@ -685,16 +698,16 @@ class Qphar(BasicQphar):
             # check whether one matches all
             for i in range(len(cluster)):
                 canReachAll = True
-                f1 = featureSet.getFeature(cluster[i])
-                r1 = Pharm.getTolerance(f1)
-                c1 = Chem.get3DCoordinates(f1).toArray()
+                f1: Pharm.BasicFeature = featureSet.getFeature(cluster[i])
+                # r1: float = Pharm.getTolerance(f1)
+                c1: np.ndarray = Chem.get3DCoordinates(f1).toArray()
                 for j in range(len(cluster)):
                     if i == j:
                         continue
 
-                    f2 = featureSet.getFeature(cluster[j])
-                    r2 = Pharm.getTolerance(f2)
-                    c2 = Chem.get3DCoordinates(f2).toArray()
+                    f2: Pharm.BasicFeature = featureSet.getFeature(cluster[j])
+                    # r2: float = Pharm.getTolerance(f2)
+                    c2: np.ndarray = Chem.get3DCoordinates(f2).toArray()
                     if threshold is None:
                         t = self.threshold
                     else:
@@ -704,14 +717,14 @@ class Qphar(BasicQphar):
                         break
 
                 if canReachAll:
-                    addedFeature = self.cleanedHP.addFeature()
+                    addedFeature: Pharm.BasicFeature = self.cleanedHP.addFeature()
                     addedFeature.assign(f1)
-                    activities = []  # store activities of merged features
+                    activities: List[float] = []  # store activities of merged features
                     for j in range(len(cluster)):
                         if i == j:
                             continue
 
-                        f2 = featureSet.getFeature(cluster[j])
+                        f2: Pharm.BasicFeature = featureSet.getFeature(cluster[j])
                         activities.append(f2.getProperty(LOOKUPKEYS['activity']))
                     addedFeature.setProperty(LOOKUPKEYS['activities'], activities)
                     addedFeature.setProperty(LOOKUPKEYS['nrOfFeatures'], len(cluster))
@@ -817,7 +830,10 @@ class Qphar(BasicQphar):
                     if not success:
                         placeMultipleFeatures(cluster, ft)
 
-    def clusterFeatures(self, featureSet, threshold=None, **kwargs):
+    def clusterFeatures(self,
+                        featureSet: Pharm.BasicPharmacophore,
+                        threshold: float = None,
+                        **kwargs) -> Dict[Pharm.FeatureType, List[List[int]]]:
         """
         Clusters the features of the aligned pharmacophores by a hierarchical clustering algorithm.
         Basically, all features within a certain distance are put into a single cluster.
@@ -830,29 +846,30 @@ class Qphar(BasicQphar):
         :return:
         """
         from src.pharmacophore_tools import FEATURE_TYPES
+
         # cluster the features and store a list of clusters, whereas each feature is referenced in the list by its index
-        clusters = {ft: [] for ft in FEATURE_TYPES.values()}
-        alreadyInCluster = set()
+        clusters: Dict[Pharm.FeatureType, List[List[int]]] = {ft: [] for ft in FEATURE_TYPES.values()}
+        alreadyInCluster: Set[int] = set()
 
         for i in range(featureSet.numFeatures):
             if i in alreadyInCluster:
                 continue
 
             alreadyInCluster.add(i)
-            f1 = featureSet.getFeature(i)
-            c1 = Chem.get3DCoordinates(f1).toArray()
-            temp = [i]  # holds indices of current cluster
-            featureType = Pharm.getType(f1)
+            f1: Pharm.BasicFeature = featureSet.getFeature(i)
+            c1: np.ndarray = Chem.get3DCoordinates(f1).toArray()
+            temp: List[int] = [i]  # holds indices of current cluster
+            featureType: Pharm.FeatureType = Pharm.getType(f1)
 
             for j in range(i+1, featureSet.numFeatures):
                 if j in alreadyInCluster:
                     continue
 
-                f2 = featureSet.getFeature(j)
+                f2: Pharm.BasicFeature = featureSet.getFeature(j)
                 if Pharm.getType(f2) != featureType:
                     continue
 
-                c2 = Chem.get3DCoordinates(f2).toArray()
+                c2: np.ndarray = Chem.get3DCoordinates(f2).toArray()
                 if threshold is None:
                     t = self.threshold
                 else:
@@ -957,14 +974,14 @@ class Qphar(BasicQphar):
         # handle unaligned samples -> set predictions to zero
         y_pred = np.where((np.array(scores) == 0), np.zeros(len(scores)), y_pred)
 
-        outputValues = (y_pred)
+        outputValues = (y_pred,)
         if returnScores:
             outputValues = (*outputValues, scores)
         if returnFeatureData:
             outputValues = (*outputValues, featureData)
         if returnAlignedPharmacophores:
             outputValues = (*outputValues, alignedPharmacophores)
-        return outputValues
+        return outputValues if len(outputValues) > 1 else outputValues[0]
 
     def save(self, path, **kwargs):
         """

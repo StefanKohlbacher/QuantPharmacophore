@@ -13,7 +13,7 @@ import multiprocessing as mp
 
 
 # define some general parameters
-NR_PROCESSES = 12
+NR_PROCESSES = 1
 BASEPATH = './supporting_data/phase_data/'
 ACTIVITY_NAME = 'IC50(nM)_exp'
 PHASE_ACTIVITY_NAME = 'IC50(nM)_PHASE>'
@@ -166,10 +166,12 @@ if __name__ == '__main__':
     }
 
     searchParams = {
-        'weightType': ['distance', 'nrOfFeatures', None],
+        # 'weightType': ['distance', 'nrOfFeatures', None],
+        'weightType': ['distance'],
         # 'modelType': ['randomForest', 'ridge', 'pca_ridge', 'pls', 'pca_lr'],
         'modelType': ['randomForest'],
-        'threshold': [1, 1.5, 2, 2.5],
+        # 'threshold': [1, 1.5, 2, 2.5],
+        'threshold': [1.5]
     }
 
     modelParams = {
@@ -183,8 +185,10 @@ if __name__ == '__main__':
     }
 
     rfParams = {
-        'n_estimators': [10, 15, 20, 30, 50],
-        'max_depth': [2, 3, None]
+        # 'n_estimators': [10, 15, 20, 30, 50],
+        # 'max_depth': [2, 3, None]
+        'n_estimators': [20],
+        'max_depth': [3],
     }
 
     keys = sorted(searchParams.keys())

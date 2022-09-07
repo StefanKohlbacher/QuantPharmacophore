@@ -3,6 +3,7 @@ import CDPL.Chem as Chem
 import CDPL.Math as Math
 import CDPL.Pharm as Pharm
 from collections import Iterable
+import os
 from src.pharmacophore_tools import getPharmacophore
 
 
@@ -25,6 +26,11 @@ class SDFReader:
         :param properties: List of properties to be read from SDF file. Returns None if not found. Internally adds ' <'
         and '>' before and after the property names in order to comply with the toolkit.
         """
+        if not os.path.isfile(path):
+            raise IOError('{} not found.'.format(path))
+        if not path.endswith('.sdf'):
+            raise IOError('Invalid file. Please provide an .sdf file. {} was given'.format(path))
+
         self.r = Chem.FileSDFMoleculeReader(path)
         self.multiconf = multiconf
         self.nr_mols = nr_mols
